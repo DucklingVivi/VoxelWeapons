@@ -1,4 +1,4 @@
-package com.ducklingvivi.voxelweapons.library;
+package com.ducklingvivi.voxelweapons.networking;
 
 import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
 import com.ducklingvivi.voxelweapons.voxelweapons;

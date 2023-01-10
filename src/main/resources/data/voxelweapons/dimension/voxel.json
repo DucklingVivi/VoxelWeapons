@@ -1,6 +1,0 @@
-{
-  "type": "voxelweapons:voxel_type",
-  "generator": {
-    "type": "voxelweapons:voxel_chunkgen"
-  }
-}

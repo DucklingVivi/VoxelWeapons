@@ -1,8 +1,8 @@
 package com.ducklingvivi.voxelweapons;
 
 import com.ducklingvivi.voxelweapons.client.model.WeaponBakedModel;
-import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
-import com.ducklingvivi.voxelweapons.library.Messages;
+import com.ducklingvivi.voxelweapons.commands.ModCommands;
+import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.setup.ModSetup;
 import com.ducklingvivi.voxelweapons.setup.Registration;
 import com.mojang.logging.LogUtils;
@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -52,10 +53,11 @@ public class voxelweapons {
 
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event) {
+
+
+    private void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
-        LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
+
     }
 
 
@@ -65,6 +67,7 @@ public class voxelweapons {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
     }
+
 
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

@@ -1,4 +1,4 @@
-package com.ducklingvivi.voxelweapons.library;
+package com.ducklingvivi.voxelweapons.networking;
 
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import net.minecraft.resources.ResourceLocation;
@@ -8,10 +8,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-import java.util.function.Supplier;
-
 public class Messages {
-    private static final String PROTOCOL_VERSION = "1";
     public static SimpleChannel INSTANCE;
 
     private static int packetId = 0;
@@ -35,10 +32,16 @@ public class Messages {
                 .consumerMainThread(WeaponRequestPacket::handle)
                 .add();
 
-        net.messageBuilder(WeaponRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(WeaponRequestPacket::new)
-                .encoder(WeaponRequestPacket::toBytes)
-                .consumerMainThread(WeaponRequestPacket::handle)
+        net.messageBuilder(RoomRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(RoomRequestPacket::new)
+                .encoder(RoomRequestPacket::toBytes)
+                .consumerMainThread(RoomRequestPacket::handle)
+                .add();
+
+        net.messageBuilder(DimensionRegistryUpdatePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(DimensionRegistryUpdatePacket::new)
+                .encoder(DimensionRegistryUpdatePacket::toBytes)
+                .consumerMainThread(DimensionRegistryUpdatePacket::handle)
                 .add();
     }
 

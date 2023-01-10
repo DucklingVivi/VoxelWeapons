@@ -20,6 +20,7 @@ import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
@@ -41,11 +42,11 @@ public class Dimensions {
 
 
     public static final ResourceKey<Level> VOXELDIMENSION = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(voxelweapons.MODID, "voxel"));
+    public static final ResourceKey<DimensionType> VOXELDIMENSIONTYPE = ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(voxelweapons.MODID, "voxel_type"));
     public static final ResourceKey<Biome> VOXELBIOME = ResourceKey.create(Registries.BIOME, new ResourceLocation(voxelweapons.MODID, "voxelbiome"));
 
+
     public static void register(){
-
-
 
 
 
@@ -54,6 +55,8 @@ public class Dimensions {
         Registry.register(BuiltInRegistries.BIOME_SOURCE, new ResourceLocation(voxelweapons.MODID, "biomes"), VoxelBiomeProvider.CODEC);
 
     }
+
+
 
 
 }

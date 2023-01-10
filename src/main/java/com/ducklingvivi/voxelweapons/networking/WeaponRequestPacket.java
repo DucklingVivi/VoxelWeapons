@@ -1,12 +1,16 @@
-package com.ducklingvivi.voxelweapons.library;
+package com.ducklingvivi.voxelweapons.networking;
 
+import com.ducklingvivi.voxelweapons.dimensions.DimensionUtils;
 import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
+import com.ducklingvivi.voxelweapons.library.Voxel;
+import com.ducklingvivi.voxelweapons.library.VoxelData;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.NetworkEvent;
@@ -30,8 +34,10 @@ public class WeaponRequestPacket {
     }
     public boolean handle(Supplier<NetworkEvent.Context> supplier){
         NetworkEvent.Context ctx = supplier.get();
+        Level level = DimensionUtils.createWorld(ctx.getSender().getServer(),"fucker");
         ctx.enqueueWork(() ->{
 
+            voxelweapons.LOGGER.info(level.toString());
             BlockPos position2 = new BlockPos(0,100,0);
             BlockState blockState2 = Blocks.BRICKS.defaultBlockState();
             ctx.getSender().server.getLevel(Dimensions.VOXELDIMENSION).setBlock(position2, blockState2, 3);
