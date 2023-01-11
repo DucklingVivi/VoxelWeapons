@@ -1,8 +1,26 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+
+    }
+}
+
+
+
 plugins {
     id 'eclipse'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '5.1.+'
+
 }
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
 
 version = '1.0'
 group = 'com.ducklingvivi.voxelweapons' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -123,6 +141,7 @@ repositories {
     // flatDir {
     //     dir 'libs'
     // }
+
 }
 
 dependencies {
@@ -130,10 +149,9 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.19.3-44.1.0'
-
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // implementation fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}") // Adds registrate as a dependency
-
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     // Examples using mod jars from ./libs
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
 
@@ -173,9 +191,16 @@ publishing {
         maven {
             url "file://${project.projectDir}/mcmodsrepo"
         }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+mixin {
+    add sourceSets.main, "voxelweapons.refmap.json"
+
+    config "modid.mixins.json"
 }

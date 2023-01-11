@@ -1,15 +1,21 @@
 package com.ducklingvivi.voxelweapons.dimensions;
 
+import com.ducklingvivi.voxelweapons.library.ClassTools;
 import com.ducklingvivi.voxelweapons.networking.DimensionRegistryUpdatePacket;
 import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.serialization.Lifecycle;
+import net.minecraft.Util;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.progress.ChunkProgressListener;
@@ -21,48 +27,41 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
 import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
 
 public class DimensionUtils {
 
 
-
-
-    public static boolean tryDeleteDimension(MinecraftServer server, ResourceKey<Level> toDelete){
-        if(server == null) return false;
+    public static boolean tryDeleteDimension(MinecraftServer server, ResourceKey<Level> toDelete) {
+        if (server == null) return false;
         @SuppressWarnings("deprecation")
 
         var item = server.getAllLevels();
         ServerLevel level = server.getLevel(toDelete);
-        if(level == null) return false;
+        if (level == null) return false;
 
         Path storageFolder = DimensionType.getStorageFolder(toDelete, server.getWorldPath(LevelResource.ROOT));
         File dir = storageFolder.toFile();
-        if(!dir.exists() || !dir.isDirectory()){
+        if (!dir.exists() || !dir.isDirectory()) {
             voxelweapons.LOGGER.warn("DimensionUtils.tryDeleteDimension: Failed to get the directory for dimension {}", toDelete.location());
             return false;
         }
-        try{
-            //TODO MORE STUFF HERE PLEASEEEEEE
-
+        try {
             unregisterLevel(server, toDelete);
             FileUtils.deleteDirectory(dir);
-
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             voxelweapons.LOGGER.warn("DimensionUtils.tryDeleteDimension: Failed to delete the directory for dimension {}", toDelete.location());
         }
 
@@ -70,7 +69,7 @@ public class DimensionUtils {
     }
 
 
-    public static ResourceKey<Level> getLevelKey(ResourceLocation id){
+    public static ResourceKey<Level> getLevelKey(ResourceLocation id) {
         return ResourceKey.create(Registries.DIMENSION, id);
     }
 
@@ -79,7 +78,8 @@ public class DimensionUtils {
         ResourceKey<Level> key = getLevelKey(id);
         tryDeleteDimension(minecraftServer, key);
     }
-    public static ServerLevel createWorld(MinecraftServer minecraftServer, String name){
+
+    public static ServerLevel createWorld(MinecraftServer minecraftServer, String name) {
 
         ResourceLocation id = new ResourceLocation(voxelweapons.MODID, name);
 
@@ -99,12 +99,11 @@ public class DimensionUtils {
     }
 
 
-    public static ServerLevel getOrCreateLevel(final MinecraftServer server, final ResourceKey<Level> levelkey, final BiFunction<MinecraftServer, ResourceKey<LevelStem>, LevelStem> dimensionFactory){
-        @SuppressWarnings("deprecation")
-        final Map<ResourceKey<Level>, ServerLevel> map = server.forgeGetWorldMap();
+    public static ServerLevel getOrCreateLevel(final MinecraftServer server, final ResourceKey<Level> levelkey, final BiFunction<MinecraftServer, ResourceKey<LevelStem>, LevelStem> dimensionFactory) {
+        @SuppressWarnings("deprecation") final Map<ResourceKey<Level>, ServerLevel> map = server.forgeGetWorldMap();
 
         final ServerLevel existingLevel = map.get(levelkey);
-        if(existingLevel != null){
+        if (existingLevel != null) {
             return existingLevel;
         }
 
@@ -112,7 +111,7 @@ public class DimensionUtils {
     }
 
 
-    private static ServerLevel createAndRegisterLevel(final MinecraftServer server, final Map<ResourceKey<Level>, ServerLevel> map, final ResourceKey<Level> worldKey, final BiFunction<MinecraftServer, ResourceKey<LevelStem>, LevelStem> dimensionFactory){
+    private static ServerLevel createAndRegisterLevel(final MinecraftServer server, final Map<ResourceKey<Level>, ServerLevel> map, final ResourceKey<Level> worldKey, final BiFunction<MinecraftServer, ResourceKey<LevelStem>, LevelStem> dimensionFactory) {
 
         final ResourceKey<LevelStem> dimensionKey = ResourceKey.create(Registries.LEVEL_STEM, worldKey.location());
         final LevelStem dimension = dimensionFactory.apply(server, dimensionKey);
@@ -120,9 +119,9 @@ public class DimensionUtils {
         final Executor executor;
         final LevelStorageAccess anvilConverter;
         try {
-            chunkProgressListener = getGetPrivateFieldValue(MinecraftServer.class,server,"progressListenerFactory", ChunkProgressListenerFactory.class).create(0);
-            executor = getGetPrivateFieldValue(MinecraftServer.class,server,"executor", Executor.class);
-            anvilConverter = getGetPrivateFieldValue(MinecraftServer.class,server,"storageSource", LevelStorageAccess.class);
+            chunkProgressListener = ClassTools.getPrivateFieldValue(MinecraftServer.class, server, "progressListenerFactory", ChunkProgressListenerFactory.class).create(0);
+            executor = ClassTools.getPrivateFieldValue(MinecraftServer.class, server, "executor", Executor.class);
+            anvilConverter = ClassTools.getPrivateFieldValue(MinecraftServer.class, server, "storageSource", LevelStorageAccess.class);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -130,13 +129,15 @@ public class DimensionUtils {
         final WorldData worldData = server.getWorldData();
         final DerivedLevelData derivedLevelData = new DerivedLevelData(worldData, worldData.overworldData());
 
-
         Registry<LevelStem> dimensionRegistry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
-        if (dimensionRegistry instanceof MappedRegistry<LevelStem> writableRegistry) {
-            //THIS FEELS VILE
-            writableRegistry.unfreeze();
-        }
-        Registry.register(dimensionRegistry, dimensionKey, dimension);
+
+
+        voxelweapons.LOGGER.info(dimensionRegistry.keySet().toString());
+//        if (dimensionRegistry instanceof MappedRegistry<LevelStem> writableRegistry) {
+//            //THIS FEELS VILE
+//            writableRegistry.unfreeze();
+//        }
+//        Registry.register(dimensionRegistry, dimensionKey, dimension);
 
         final ServerLevel newWorld = new ServerLevel(
                 server,
@@ -167,13 +168,9 @@ public class DimensionUtils {
     }
 
     private static void unregisterLevel(MinecraftServer server, ResourceKey<Level> levelKey) {
-
-
         ServerLevel level = server.getLevel(levelKey);
-
-
         assert level != null;
-        if(!level.players().isEmpty()){
+        if (!level.players().isEmpty()) {
             for (ServerPlayer player : level.players()) {
                 ResourceKey<Level> respawnKey = player.getRespawnDimension();
                 final ServerLevel destLevel = server.getLevel(respawnKey);
@@ -182,21 +179,57 @@ public class DimensionUtils {
                     assert destLevel != null;
                     pos = destLevel.getSharedSpawnPos();
                 }
-                player.teleportTo(destLevel, pos.getX(),pos.getY(), pos.getZ(),player.getRespawnAngle(), 0f);
+                player.teleportTo(destLevel, pos.getX(), pos.getY(), pos.getZ(), player.getRespawnAngle(), 0f);
             }
         }
 
-        server.getWorldData().worldGenSettingsLifecycle().
-        IServerConfiguration
+
         WorldGenSettings worldGenSettings;
         //TODO ACCESS AND REMOVE WORLD GEN SETTINGS
+        try {
+            LayeredRegistryAccess<RegistryLayer> registries = ClassTools.getPrivateFieldValue(MinecraftServer.class, server, "registries",LayeredRegistryAccess.class);
+            RegistryAccess.ImmutableRegistryAccess composite = ClassTools.getPrivateFieldValue(LayeredRegistryAccess.class, registries, "composite",RegistryAccess.ImmutableRegistryAccess.class);
+
+            Map<ResourceKey,MappedRegistry> map = ClassTools.getPrivateFieldValue(RegistryAccess.ImmutableRegistryAccess.class, composite, "registries",Map.class);
+
+            Map<ResourceKey,MappedRegistry> hashMap = new HashMap<>();
+            hashMap.putAll(map);
+            ResourceKey key = ResourceKey.create(ResourceKey.createRegistryKey(new ResourceLocation("root")),new ResourceLocation("dimension"));
+
+            final MappedRegistry<LevelStem> oldRegistry = hashMap.get(key);
+            Lifecycle oldLifecycle = ClassTools.getPrivateFieldValue(MappedRegistry.class, oldRegistry,"registryLifecycle", Lifecycle.class);
+            final MappedRegistry<LevelStem> newRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, oldLifecycle, false);
+            for (var entry : oldRegistry.entrySet()) {
+                final ResourceKey<LevelStem> oldKey = entry.getKey();
+                final ResourceKey<Level> oldLevelKey = ResourceKey.create(Registries.DIMENSION, oldKey.location());
+                final LevelStem dimension = entry.getValue();
+                if(oldKey != null && dimension != null && oldLevelKey != levelKey){
+                    Registry.register(newRegistry, oldKey, dimension);
+                }
+            }
+            hashMap.replace(key, newRegistry);
+
+            ClassTools.setPrivateFieldValue(RegistryAccess.ImmutableRegistryAccess.class, composite, "registries",hashMap);
+        }
+        catch (NoSuchFieldException | IllegalAccessException e){
+            throw new RuntimeException(e);
+        }
 
 
+        Registry<LevelStem> dimensionRegistry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
+        var t = dimensionRegistry.keySet();
+        voxelweapons.LOGGER.info(t.toString());
+
+
+
+
+        //deleteAndSaveDataTag(server, levelKey);
 
         server.forgeGetWorldMap().remove(levelKey);
+
+
+
         MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.LevelEvent.Unload(level));
-
-
 
 
         server.markWorldsDirty();
@@ -204,16 +237,5 @@ public class DimensionUtils {
         Messages.sendToAllPlayers(new DimensionRegistryUpdatePacket(ImmutableSet.of(), ImmutableSet.of(levelKey)));
 
 
-
     }
-    public static <S extends T,T,V> V getGetPrivateFieldValue(Class<T> type,S object, String fieldstring, Class<V> ignoredFieldtype) throws NoSuchFieldException, IllegalAccessException {
-        Field field = type.getDeclaredField(fieldstring);
-        boolean prev = field.canAccess(object);
-        field.setAccessible(true);
-        V value = (V)field.get(object);
-        field.setAccessible(prev);
-        return value;
-    }
-
-
 }

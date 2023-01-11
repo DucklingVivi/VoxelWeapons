@@ -34,13 +34,9 @@ public class WeaponRequestPacket {
     }
     public boolean handle(Supplier<NetworkEvent.Context> supplier){
         NetworkEvent.Context ctx = supplier.get();
-        Level level = DimensionUtils.createWorld(ctx.getSender().getServer(),"fucker");
         ctx.enqueueWork(() ->{
 
-            voxelweapons.LOGGER.info(level.toString());
-            BlockPos position2 = new BlockPos(0,100,0);
-            BlockState blockState2 = Blocks.BRICKS.defaultBlockState();
-            ctx.getSender().server.getLevel(Dimensions.VOXELDIMENSION).setBlock(position2, blockState2, 3);
+
 
             voxelweapons.LOGGER.info("Server meep");
             ctx.getSender().getHandSlots().forEach(itemStack -> {
