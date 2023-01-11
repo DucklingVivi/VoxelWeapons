@@ -47,39 +47,37 @@ public class WeaponBakedModelFinalized implements IDynamicBakedModel {
 
     @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand) {
-        List<BakedQuad> quads = new ArrayList<BakedQuad>();
+
 
         Direction facing = state == null ? Direction.SOUTH : state.getValue(BlockStateProperties.FACING);
 
 
-        Transformation translate = transformBlock(facing);
 
-        IQuadTransformer transformer = QuadTransformers.applying(translate);
+
+
+
         BlockState blockState = Blocks.BONE_BLOCK.defaultBlockState();
+        BlockState blockState2 = Blocks.BONE_BLOCK.defaultBlockState();
+
+        List<BakedQuad> modelQuads = new ArrayList<>();
+
+
         if(data != null){
             if(data.getVoxels() != null) {
-                if (data.getVoxels().size() > 0) {
-                    blockState = data.getVoxels().get(0).blockState;
+                for (Voxel voxel: data.getVoxels()) {
+                    IForgeBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(voxel.blockState);
+                    Transformation translate = transformBlock(voxel.x, voxel.y, voxel.z, 0.1f);
+                    IQuadTransformer transformer = QuadTransformers.applying(translate);
+                    modelQuads.addAll(transformer.process(model.getQuads(state, side, rand, ModelData.builder().build(), null)));
                 }
             }
         }
 
 
-        IForgeBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(blockState);
-
-        List<BakedQuad> modelQuads = model.getQuads(state, side, rand, ModelData.builder().build(), null);
-
-        TextureAtlasSprite sprite = null;
-
-
         //new Material(new ResourceLocation(data.resourceMap.get(0)))
 
 
-        for (BakedQuad quad : modelQuads) {
-            quads.add(transformer.process(quad));
-        }
-
-        return quads;
+        return modelQuads;
     }
 
     @Override
@@ -90,6 +88,14 @@ public class WeaponBakedModelFinalized implements IDynamicBakedModel {
     private Transformation transformBlock(Direction facing){
         Transformation translate = new Transformation(new Matrix4f().translate(0.5f,0.5f,0.5f));
         translate = translate.compose(new Transformation(new Matrix4f().scale(.2f,.2f,.2f)));
+        translate = translate.compose(new Transformation(new Matrix4f().translate(-0.5f,-0.5f,-0.5f)));
+        return translate;
+    }
+
+    private Transformation transformBlock(int x, int y, int z, float scale){
+        Transformation translate = new Transformation(new Matrix4f().translate(0.5f,0.5f,0.5f));
+        translate = translate.compose(new Transformation(new Matrix4f().scale(scale,scale,scale)));
+        translate = translate.compose(new Transformation(new Matrix4f().translate(x,y,z)));
         translate = translate.compose(new Transformation(new Matrix4f().translate(-0.5f,-0.5f,-0.5f)));
         return translate;
     }

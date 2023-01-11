@@ -1,17 +1,15 @@
 package com.ducklingvivi.voxelweapons.dimensions;
 
-import com.ducklingvivi.voxelweapons.library.ClassTools;
 import com.ducklingvivi.voxelweapons.networking.DimensionRegistryUpdatePacket;
 import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -19,7 +17,6 @@ import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.progress.ChunkProgressListener;
-import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -27,15 +24,19 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
 import net.minecraft.world.level.storage.WorldData;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -115,17 +116,9 @@ public class DimensionUtils {
 
         final ResourceKey<LevelStem> dimensionKey = ResourceKey.create(Registries.LEVEL_STEM, worldKey.location());
         final LevelStem dimension = dimensionFactory.apply(server, dimensionKey);
-        final ChunkProgressListener chunkProgressListener;
-        final Executor executor;
-        final LevelStorageAccess anvilConverter;
-        try {
-            chunkProgressListener = ClassTools.getPrivateFieldValue(MinecraftServer.class, server, "progressListenerFactory", ChunkProgressListenerFactory.class).create(0);
-            executor = ClassTools.getPrivateFieldValue(MinecraftServer.class, server, "executor", Executor.class);
-            anvilConverter = ClassTools.getPrivateFieldValue(MinecraftServer.class, server, "storageSource", LevelStorageAccess.class);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
+        final ChunkProgressListener chunkProgressListener = server.progressListenerFactory.create(11);
+        final Executor executor = server.executor;
+        final LevelStorageAccess anvilConverter = server.storageSource;
         final WorldData worldData = server.getWorldData();
         final DerivedLevelData derivedLevelData = new DerivedLevelData(worldData, worldData.overworldData());
 
@@ -133,11 +126,11 @@ public class DimensionUtils {
 
 
         voxelweapons.LOGGER.info(dimensionRegistry.keySet().toString());
-//        if (dimensionRegistry instanceof MappedRegistry<LevelStem> writableRegistry) {
-//            //THIS FEELS VILE
-//            writableRegistry.unfreeze();
-//        }
-//        Registry.register(dimensionRegistry, dimensionKey, dimension);
+       if (dimensionRegistry instanceof MappedRegistry<LevelStem> writableRegistry) {
+            //THIS FEELS VILE
+            writableRegistry.unfreeze();
+       }
+       Registry.register(dimensionRegistry, dimensionKey, dimension);
 
         final ServerLevel newWorld = new ServerLevel(
                 server,
@@ -171,7 +164,8 @@ public class DimensionUtils {
         ServerLevel level = server.getLevel(levelKey);
         assert level != null;
         if (!level.players().isEmpty()) {
-            for (ServerPlayer player : level.players()) {
+
+            for (ServerPlayer player : Lists.newArrayList(level.players())) {
                 ResourceKey<Level> respawnKey = player.getRespawnDimension();
                 final ServerLevel destLevel = server.getLevel(respawnKey);
                 BlockPos pos = player.getRespawnPosition();
@@ -186,44 +180,38 @@ public class DimensionUtils {
 
         WorldGenSettings worldGenSettings;
         //TODO ACCESS AND REMOVE WORLD GEN SETTINGS
-        try {
-            LayeredRegistryAccess<RegistryLayer> registries = ClassTools.getPrivateFieldValue(MinecraftServer.class, server, "registries",LayeredRegistryAccess.class);
-            RegistryAccess.ImmutableRegistryAccess composite = ClassTools.getPrivateFieldValue(LayeredRegistryAccess.class, registries, "composite",RegistryAccess.ImmutableRegistryAccess.class);
 
-            Map<ResourceKey,MappedRegistry> map = ClassTools.getPrivateFieldValue(RegistryAccess.ImmutableRegistryAccess.class, composite, "registries",Map.class);
+        LayeredRegistryAccess<RegistryLayer> registries = server.registries();
+        RegistryAccess.ImmutableRegistryAccess composite = (RegistryAccess.ImmutableRegistryAccess)registries.composite;
+        @SuppressWarnings("unchecked")
+        Map<? extends ResourceKey,? extends Registry> map = composite.registries;
 
-            Map<ResourceKey,MappedRegistry> hashMap = new HashMap<>();
-            hashMap.putAll(map);
-            ResourceKey key = ResourceKey.create(ResourceKey.createRegistryKey(new ResourceLocation("root")),new ResourceLocation("dimension"));
+        Map<ResourceKey,Registry> hashMap = new HashMap<>(map);
 
-            final MappedRegistry<LevelStem> oldRegistry = hashMap.get(key);
-            Lifecycle oldLifecycle = ClassTools.getPrivateFieldValue(MappedRegistry.class, oldRegistry,"registryLifecycle", Lifecycle.class);
-            final MappedRegistry<LevelStem> newRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, oldLifecycle, false);
-            for (var entry : oldRegistry.entrySet()) {
-                final ResourceKey<LevelStem> oldKey = entry.getKey();
-                final ResourceKey<Level> oldLevelKey = ResourceKey.create(Registries.DIMENSION, oldKey.location());
-                final LevelStem dimension = entry.getValue();
-                if(oldKey != null && dimension != null && oldLevelKey != levelKey){
-                    Registry.register(newRegistry, oldKey, dimension);
-                }
+        ResourceKey<?> key = ResourceKey.create(ResourceKey.createRegistryKey(new ResourceLocation("root")),new ResourceLocation("dimension"));
+        @SuppressWarnings("unchecked")
+        final MappedRegistry<LevelStem> oldRegistry = (MappedRegistry)hashMap.get(key);
+        Lifecycle oldLifecycle = oldRegistry.registryLifecycle;
+        final MappedRegistry<LevelStem> newRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, oldLifecycle, false);
+        for (var entry : oldRegistry.entrySet()) {
+
+            final ResourceKey<LevelStem> oldKey = (ResourceKey<LevelStem>) entry.getKey();
+            final ResourceKey<Level> oldLevelKey = ResourceKey.create(Registries.DIMENSION, oldKey.location());
+            final LevelStem dimension = (LevelStem) entry.getValue();
+            if(oldKey != null && dimension != null && oldLevelKey != levelKey){
+                Registry.register(newRegistry, oldKey, dimension);
             }
-            hashMap.replace(key, newRegistry);
+        }
+        hashMap.replace(key, newRegistry);
 
-            ClassTools.setPrivateFieldValue(RegistryAccess.ImmutableRegistryAccess.class, composite, "registries",hashMap);
-        }
-        catch (NoSuchFieldException | IllegalAccessException e){
-            throw new RuntimeException(e);
-        }
+        Map<? extends ResourceKey,? extends Registry> hashMap2 = new HashMap<>(map);
+        composite.registries = (Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>>) hashMap2;
 
 
         Registry<LevelStem> dimensionRegistry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
         var t = dimensionRegistry.keySet();
         voxelweapons.LOGGER.info(t.toString());
 
-
-
-
-        //deleteAndSaveDataTag(server, levelKey);
 
         server.forgeGetWorldMap().remove(levelKey);
 
@@ -235,7 +223,25 @@ public class DimensionUtils {
         server.markWorldsDirty();
 
         Messages.sendToAllPlayers(new DimensionRegistryUpdatePacket(ImmutableSet.of(), ImmutableSet.of(levelKey)));
-
-
+    }
+//TODO FIX THIS INSTANTLY
+    public static List<String> GetDimensionStrings(){
+        List<String> retList = new ArrayList<>();
+        Set<ResourceKey<Level>> levels;
+        Set<ResourceKey<Level>> level1 = DistExecutor.unsafeCallWhenOn(Dist.CLIENT,() -> DimensionUtils::getLevelSetClient);
+        Set<ResourceKey<Level>> level2 = DistExecutor.unsafeCallWhenOn(Dist.DEDICATED_SERVER,() -> DimensionUtils::getLevelSetServer);
+        levels = level1 != null ? level1 :level2;
+        for (ResourceKey<Level> level: levels) {
+            if(level.location().getNamespace()==voxelweapons.MODID){
+                retList.add(level.location().getPath());
+            }
+        }
+        return retList;
+    }
+    private static Set<ResourceKey<Level>> getLevelSetClient(){
+        return Minecraft.getInstance().player.connection.levels();
+    }
+    private static Set<ResourceKey<Level>> getLevelSetServer(){
+        return ServerLifecycleHooks.getCurrentServer().levelKeys();
     }
 }

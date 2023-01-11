@@ -42,9 +42,18 @@ public class WeaponRequestPacket {
             ctx.getSender().getHandSlots().forEach(itemStack -> {
                 VoxelData data = new VoxelData();
                 List<Voxel> voxels = new ArrayList<Voxel>();
-                BlockPos pos = new BlockPos(0,100,0);
-                BlockState blockState = ctx.getSender().server.getLevel(Dimensions.VOXELDIMENSION).getBlockState(pos);
-                voxels.add(new Voxel(0,0,0,blockState));
+                for (int i = -2; i < 3; i++) {
+                    for (int j = -2; j < 3; j++) {
+                        for (int k = 0; k < 6; k++) {
+                            BlockPos pos = new BlockPos(0+i,100+k,0+j);
+                            BlockState blockState = ctx.getSender().server.getLevel(Dimensions.VOXELDIMENSION).getBlockState(pos);
+                            voxels.add(new Voxel(i,k,j,blockState));
+                        }
+                    }
+                }
+
+
+
                 data.setVoxels(voxels);
 
 
