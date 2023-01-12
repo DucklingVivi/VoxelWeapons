@@ -40,7 +40,7 @@ public class voxelweapons {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(ModSetup::init);
-
+        modEventBus.addListener(ModSetup::clientInit);
         Messages.register();
 
         Registration.init();

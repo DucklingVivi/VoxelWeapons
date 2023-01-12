@@ -28,6 +28,7 @@ public class WeaponOverrides extends ItemOverrides {
                 data.loadNBTData(tag.getCompound("VoxelData"));
             }
         }
+
         return new WeaponBakedModelFinalized(originalModel, data);
     }
 }
