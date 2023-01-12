@@ -159,7 +159,7 @@ public class DimensionUtils {
 
         return newWorld;
     }
-
+    @SuppressWarnings("unchecked deprecated")
     private static void unregisterLevel(MinecraftServer server, ResourceKey<Level> levelKey) {
         ServerLevel level = server.getLevel(levelKey);
         assert level != null;
@@ -181,28 +181,27 @@ public class DimensionUtils {
 
         LayeredRegistryAccess<RegistryLayer> registries = server.registries();
         RegistryAccess.ImmutableRegistryAccess composite = (RegistryAccess.ImmutableRegistryAccess)registries.composite;
-        @SuppressWarnings("unchecked")
-        Map<? extends ResourceKey,? extends Registry> map = composite.registries;
 
-        Map<ResourceKey,Registry> hashMap = new HashMap<>(map);
+        Map<? extends ResourceKey<?>,? extends Registry<?>> map = composite.registries;
+
+        Map<ResourceKey<?>,Registry<?>> hashMap = new HashMap<>(map);
 
         ResourceKey<?> key = ResourceKey.create(ResourceKey.createRegistryKey(new ResourceLocation("root")),new ResourceLocation("dimension"));
-        @SuppressWarnings("unchecked")
-        final MappedRegistry<LevelStem> oldRegistry = (MappedRegistry)hashMap.get(key);
+        final MappedRegistry<LevelStem> oldRegistry = (MappedRegistry<LevelStem>)hashMap.get(key);
         Lifecycle oldLifecycle = oldRegistry.registryLifecycle;
         final MappedRegistry<LevelStem> newRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, oldLifecycle, false);
         for (var entry : oldRegistry.entrySet()) {
 
-            final ResourceKey<LevelStem> oldKey = (ResourceKey<LevelStem>) entry.getKey();
+            final ResourceKey<LevelStem> oldKey = entry.getKey();
             final ResourceKey<Level> oldLevelKey = ResourceKey.create(Registries.DIMENSION, oldKey.location());
-            final LevelStem dimension = (LevelStem) entry.getValue();
-            if(oldKey != null && dimension != null && oldLevelKey != levelKey){
+            final LevelStem dimension = entry.getValue();
+            if(dimension != null && oldLevelKey != levelKey){
                 Registry.register(newRegistry, oldKey, dimension);
             }
         }
         hashMap.replace(key, newRegistry);
 
-        Map<? extends ResourceKey,? extends Registry> hashMap2 = new HashMap<>(map);
+        Map<? extends ResourceKey<?>,? extends Registry<?>> hashMap2 = new HashMap<>(map);
         composite.registries = (Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>>) hashMap2;
 
 

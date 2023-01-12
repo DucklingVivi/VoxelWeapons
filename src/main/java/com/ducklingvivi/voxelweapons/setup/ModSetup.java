@@ -6,6 +6,7 @@ import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.telemetry.events.WorldLoadEvent;
 import net.minecraft.commands.CommandSource;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
