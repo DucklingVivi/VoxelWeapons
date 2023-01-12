@@ -178,8 +178,6 @@ public class DimensionUtils {
         }
 
 
-        WorldGenSettings worldGenSettings;
-        //TODO ACCESS AND REMOVE WORLD GEN SETTINGS
 
         LayeredRegistryAccess<RegistryLayer> registries = server.registries();
         RegistryAccess.ImmutableRegistryAccess composite = (RegistryAccess.ImmutableRegistryAccess)registries.composite;
@@ -209,8 +207,6 @@ public class DimensionUtils {
 
 
         Registry<LevelStem> dimensionRegistry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
-        var t = dimensionRegistry.keySet();
-        voxelweapons.LOGGER.info(t.toString());
 
 
         server.forgeGetWorldMap().remove(levelKey);
