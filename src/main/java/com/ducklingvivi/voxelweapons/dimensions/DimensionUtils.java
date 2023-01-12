@@ -201,7 +201,8 @@ public class DimensionUtils {
         }
         hashMap.replace(key, newRegistry);
 
-        composite.registries = (Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>>) hashMap;
+        HashMap<?,?> setMap = new HashMap<>(hashMap);
+        composite.registries = (Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>>) setMap;
 
 
         Registry<LevelStem> dimensionRegistry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);

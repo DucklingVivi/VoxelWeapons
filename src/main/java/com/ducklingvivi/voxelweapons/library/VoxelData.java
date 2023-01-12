@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class VoxelData {
@@ -11,8 +12,7 @@ public class VoxelData {
     public VoxelData(){
 
     }
-    private List<Voxel> voxels;
-
+    private List<Voxel> voxels = Collections.emptyList();
 
 
     public List<Voxel> getVoxels(){
@@ -43,5 +43,19 @@ public class VoxelData {
            blockStates.add(Voxel.fromCompound(listCompound.getCompound(i.toString())));
         }
         voxels = blockStates;
+    }
+
+
+    public CompoundTag toCompound() {
+        CompoundTag tag = new CompoundTag();
+        saveNBTData(tag);
+        return tag;
+    }
+
+
+    public VoxelData fromCompound(CompoundTag tag) {
+        VoxelData voxelData = new VoxelData();
+        voxelData.loadNBTData(tag);
+        return voxelData;
     }
 }

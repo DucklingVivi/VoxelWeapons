@@ -1,43 +1,44 @@
 package com.ducklingvivi.voxelweapons.library;
 
-import com.ducklingvivi.voxelweapons.setup.Registration;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class VoxelItemCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
     @Override
     public CompoundTag serializeNBT() {
-        return null;
+        VoxelHandler handler = getCachedVoxelHandler();
+        return handler.serializeNBT();
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-
+        VoxelHandler handler = getCachedVoxelHandler();
+        handler.deserializeNBT(nbt);
     }
+
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        getCapability(cap);
+        if (VoxelHandler.CAPABILITY == cap) return (LazyOptional<T>)(lazyInitialisionSupplier);
+        return LazyOptional.empty();
     }
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
-        if (Registration.VOXELITEMCAPABILITY == cap) return (LazyOptional<T>)(lazyInitialisionSupplier);
-        return LazyOptional.empty();
+        return getCapability(cap, null);
     }
 
-    private VoxelHandler getCachedInventory() {
-        if (itemStackHandlerFlowerBag == null) {
-            itemStackHandlerFlowerBag = new Voxel;
+    private VoxelHandler getCachedVoxelHandler() {
+        if (itemStackHandlerVoxel == null) {
+            itemStackHandlerVoxel = new VoxelHandler();
         }
-        return itemStackHandlerFlowerBag;
+        return itemStackHandlerVoxel;
     }
-    private VoxelHandler itemStackHandlerFlowerBag;
-    private final LazyOptional<IItemHandler> lazyInitialisionSupplier = LazyOptional.of(this::getCachedInventory);
+    private VoxelHandler itemStackHandlerVoxel;
+    private final LazyOptional<VoxelHandler> lazyInitialisionSupplier = LazyOptional.of(this::getCachedVoxelHandler);
 }

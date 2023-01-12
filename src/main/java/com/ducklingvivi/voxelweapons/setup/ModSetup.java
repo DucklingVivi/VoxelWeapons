@@ -3,7 +3,7 @@ package com.ducklingvivi.voxelweapons.setup;
 
 import com.ducklingvivi.voxelweapons.commands.ModCommands;
 import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
-import com.ducklingvivi.voxelweapons.library.VoxelInterface;
+import com.ducklingvivi.voxelweapons.library.VoxelBase;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 
 import net.minecraft.client.renderer.ItemModelShaper;
@@ -19,9 +19,10 @@ public class ModSetup {
 
     @SubscribeEvent
     public void onRegisterCapabilitiesEvent(RegisterCapabilitiesEvent event) {
-       event.register(VoxelCapability.class);
+        event.register(VoxelBase.class);
     }
 
+    @SubscribeEvent
     public static void onRegisterCommandEvent(RegisterCommandsEvent event) {
         ModCommands.register(event.getDispatcher());
     }
