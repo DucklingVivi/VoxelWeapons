@@ -26,17 +26,18 @@ public class Messages {
                 .simpleChannel();
         INSTANCE = net;
 
+        net.messageBuilder(WeaponPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(WeaponPacket::new)
+                .encoder(WeaponPacket::toBytes)
+                .consumerMainThread(WeaponPacket::handle)
+                .add();
+
         net.messageBuilder(WeaponRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(WeaponRequestPacket::new)
                 .encoder(WeaponRequestPacket::toBytes)
                 .consumerMainThread(WeaponRequestPacket::handle)
                 .add();
 
-        net.messageBuilder(RoomRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(RoomRequestPacket::new)
-                .encoder(RoomRequestPacket::toBytes)
-                .consumerMainThread(RoomRequestPacket::handle)
-                .add();
 
         net.messageBuilder(DimensionRegistryUpdatePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(DimensionRegistryUpdatePacket::new)

@@ -2,6 +2,7 @@ package com.ducklingvivi.voxelweapons.library;
 
 
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -10,57 +11,21 @@ import net.minecraft.world.level.block.state.BlockState;
 
 
 public class Voxel {
-    public int x;
-    public int y;
-    public int z;
+    BlockPos blockPos;
     public BlockState blockState;
 
-    public Voxel(int x, int y, int z, BlockState blockState) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public Voxel(BlockPos blockPos, BlockState blockState) {
+        this.blockPos = blockPos;
         this.blockState = blockState;
     }
 
 
-//    public static BBVoxelResourceData convertListToBBVoxelMaterialData(List<Voxel> voxelList){
-//
-//        Map<Integer,String> resourceMap = new HashMap<>(Collections.emptyMap());
-//        List<BBVoxel> bbVoxels = new ArrayList<>(Collections.emptyList());
-//        Integer materialIndex = 0;
-//        for (Voxel voxel : voxelList) {
-//            String string = voxel.blockState.toString();
-//            if (!resourceMap.containsValue(string)) {
-//                resourceMap.put(materialIndex, string);
-//                materialIndex++;
-//            }
-//            for (Map.Entry<Integer,String> entry : resourceMap.entrySet()){
-//                if(string.equals(entry.getValue())){
-//                    bbVoxels.add(voxel.toBBVoxel(entry.getKey()));
-//                    break;
-//                }
-//            }
-//        }
-//
-//        return new BBVoxelResourceData(resourceMap,bbVoxels);
-//    }
-//
-//
-
-
-//    public BBVoxel toBBVoxel(){
-//        return this.toBBVoxel(-1);
-//    }
-//    public BBVoxel toBBVoxel(int textureIndex){
-//        return new BBVoxel(this.x, this.y, textureIndex);
-//    }
-
     public CompoundTag toCompound() {
 
         CompoundTag tag = new CompoundTag();
-        tag.putInt("x",x);
-        tag.putInt("y",y);
-        tag.putInt("z",z);
+        tag.putInt("x",blockPos.getX());
+        tag.putInt("y",blockPos.getY());
+        tag.putInt("z",blockPos.getZ());
         tag.put("blockstate", NbtUtils.writeBlockState(blockState));
         return tag;
     }
@@ -70,7 +35,7 @@ public class Voxel {
 
 
 
-        return new Voxel(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"), NbtUtils.readBlockState(
+        return new Voxel(new BlockPos(tag.getInt("x"),tag.getInt("y"),tag.getInt("z")), NbtUtils.readBlockState(
                 voxelUtils.getLevel().holderLookup(Registries.BLOCK),
                 tag.getCompound("blockstate")));
     }

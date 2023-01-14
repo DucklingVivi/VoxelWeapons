@@ -7,9 +7,11 @@ import com.ducklingvivi.voxelweapons.setup.ModSetup;
 import com.ducklingvivi.voxelweapons.setup.Registration;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -76,12 +78,16 @@ public class voxelweapons {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             // Some client setup code
-
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
 
         }
 
+
+        @SubscribeEvent
+        public static void testing(EntityRenderersEvent.RegisterRenderers event){
+
+        }
         @SubscribeEvent
         public static void onModelBakeEvent(ModelEvent.ModifyBakingResult event){
             voxelweapons.LOGGER.info("Entered Bakery");

@@ -39,14 +39,12 @@ public class WeaponBakedModel implements IDynamicBakedModel {
 
     public final ModelState modelState;
     private final Function<Material, TextureAtlasSprite> spriteGetter;
-    private WeaponOverrides weaponOverrides;
     public static final ModelResourceLocation modelResourceLocation
             = new ModelResourceLocation(Registration.VOXELWEAPONITEM.getId(), "inventory");
 
     public WeaponBakedModel(){
         this.modelState = new ModelState(){};
         this.spriteGetter = material -> material.sprite();
-        weaponOverrides = new WeaponOverrides();
     }
 
     @Override
@@ -62,7 +60,7 @@ public class WeaponBakedModel implements IDynamicBakedModel {
 
     @Override
     public boolean isGui3d() {
-        return false;
+        return true;
     }
 
     @Override
@@ -72,7 +70,7 @@ public class WeaponBakedModel implements IDynamicBakedModel {
 
     @Override
     public boolean isCustomRenderer() {
-        return false;
+        return true;
     }
 
     @Override
@@ -82,6 +80,8 @@ public class WeaponBakedModel implements IDynamicBakedModel {
 
     @Override
     public ItemOverrides getOverrides() {
-        return weaponOverrides;
+        return ItemOverrides.EMPTY;
     }
+
+
 }

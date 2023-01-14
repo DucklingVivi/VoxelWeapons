@@ -2,32 +2,27 @@ package com.ducklingvivi.voxelweapons.client.model;
 
 
 
-import com.ducklingvivi.voxelweapons.library.Voxel;
 import com.ducklingvivi.voxelweapons.library.VoxelData;
 import com.mojang.math.Transformation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.AtlasSet;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraftforge.client.extensions.IForgeBakedModel;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraftforge.client.model.IDynamicBakedModel;
 import net.minecraftforge.client.model.IQuadTransformer;
 import net.minecraftforge.client.model.data.ModelData;
 
 import net.minecraftforge.client.model.QuadTransformers;
 
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -45,44 +40,47 @@ public class WeaponBakedModelFinalized implements IDynamicBakedModel {
         this.data = data;
     }
 
+
+
     @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand) {
 
 
-        Direction facing = state == null ? Direction.SOUTH : state.getValue(BlockStateProperties.FACING);
 
 
 
 
 
-
-        BlockState blockState = Blocks.BONE_BLOCK.defaultBlockState();
-        BlockState blockState2 = Blocks.BONE_BLOCK.defaultBlockState();
 
         List<BakedQuad> modelQuads = new ArrayList<>();
 
 
+
         if(data != null){
-            if(data.getVoxels() != null) {
-                for (Voxel voxel: data.getVoxels()) {
-                    IForgeBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(voxel.blockState);
-                    Transformation translate = transformBlock(voxel.x, voxel.y, voxel.z, 0.1f);
+            if(data.devGetVoxels() != null) {
+                for (StructureTemplate.StructureBlockInfo structureBlockInfo: data.devGetVoxels()) {
+                    BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(structureBlockInfo.state);
+
+                    //TODO FIX LEAF BLOCKS
+
+                    ModelData modelData = model.getModelData(Minecraft.getInstance().level,Minecraft.getInstance().player.blockPosition(),structureBlockInfo.state, ModelData.builder().build());
+                    Transformation translate = transformBlock(structureBlockInfo.pos.getX(), structureBlockInfo.pos.getY(), structureBlockInfo.pos.getZ(), 0.1f);
                     IQuadTransformer transformer = QuadTransformers.applying(translate);
-                    modelQuads.addAll(transformer.process(model.getQuads(state, side, rand, ModelData.builder().build(), null)));
+                    modelQuads.addAll(transformer.process(model.getQuads(structureBlockInfo.state, side, rand, modelData, null)));
                 }
             }
+
         }
 
 
         //new Material(new ResourceLocation(data.resourceMap.get(0)))
-
-
         return modelQuads;
     }
 
     @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
-        return null;
+        //THIS SHOULD NEVER GET CALLED
+        throw new RuntimeException("FUCK");
     }
 
     private Transformation transformBlock(Direction facing){
@@ -107,7 +105,7 @@ public class WeaponBakedModelFinalized implements IDynamicBakedModel {
 
     @Override
     public boolean isGui3d() {
-        return false;
+        return true;
     }
 
     @Override
