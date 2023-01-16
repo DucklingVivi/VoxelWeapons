@@ -29,20 +29,26 @@ public class Messages {
         net.messageBuilder(WeaponPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(WeaponPacket::new)
                 .encoder(WeaponPacket::toBytes)
-                .consumerMainThread(WeaponPacket::handle)
+                .consumerNetworkThread(WeaponPacket::handle)
                 .add();
 
         net.messageBuilder(WeaponRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(WeaponRequestPacket::new)
                 .encoder(WeaponRequestPacket::toBytes)
-                .consumerMainThread(WeaponRequestPacket::handle)
+                .consumerNetworkThread(WeaponRequestPacket::handle)
                 .add();
 
 
         net.messageBuilder(DimensionRegistryUpdatePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(DimensionRegistryUpdatePacket::new)
                 .encoder(DimensionRegistryUpdatePacket::toBytes)
-                .consumerMainThread(DimensionRegistryUpdatePacket::handle)
+                .consumerNetworkThread(DimensionRegistryUpdatePacket::handle)
+                .add();
+
+        net.messageBuilder(DimensionCreatorPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(DimensionCreatorPacket::new)
+                .encoder(DimensionCreatorPacket::toBytes)
+                .consumerMainThread(DimensionCreatorPacket::handle)
                 .add();
     }
 

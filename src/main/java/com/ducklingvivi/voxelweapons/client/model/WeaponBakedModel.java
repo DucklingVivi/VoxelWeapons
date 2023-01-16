@@ -15,6 +15,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
@@ -42,9 +43,11 @@ public class WeaponBakedModel implements IDynamicBakedModel {
     public static final ModelResourceLocation modelResourceLocation
             = new ModelResourceLocation(Registration.VOXELWEAPONITEM.getId(), "inventory");
 
+    public ItemOverrides overrides;
     public WeaponBakedModel(){
         this.modelState = new ModelState(){};
         this.spriteGetter = material -> material.sprite();
+        this.overrides = new VoxelItemOverride();
     }
 
     @Override
@@ -80,7 +83,7 @@ public class WeaponBakedModel implements IDynamicBakedModel {
 
     @Override
     public ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
+        return overrides;
     }
 
 

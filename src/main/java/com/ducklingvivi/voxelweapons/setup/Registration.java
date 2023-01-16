@@ -1,6 +1,5 @@
 package com.ducklingvivi.voxelweapons.setup;
 
-import com.ducklingvivi.voxelweapons.library.Voxel;
 import com.ducklingvivi.voxelweapons.library.VoxelItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -10,10 +9,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.function.Supplier;
-
 import static com.ducklingvivi.voxelweapons.voxelweapons.MODID;
-import static net.minecraft.core.QuartPos.fromBlock;
 
 public class Registration {
 

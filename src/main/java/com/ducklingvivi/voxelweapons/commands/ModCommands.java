@@ -12,6 +12,7 @@ public class ModCommands {
                 Commands.literal(voxelweapons.MODID)
                         .then(CommandCreateLevel.register(dispatcher))
                         .then(CommandDeleteLevel.register(dispatcher))
+                        .then(CommandCreateWeapon.register(dispatcher))
         );
         dispatcher.register(Commands.literal("voxel").redirect(commands));
     }

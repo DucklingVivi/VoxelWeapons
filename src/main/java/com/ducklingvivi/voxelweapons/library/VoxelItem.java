@@ -5,6 +5,8 @@ import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.networking.WeaponPacket;
 import com.ducklingvivi.voxelweapons.networking.WeaponRequestPacket;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +26,7 @@ public class VoxelItem extends Item {
         super(new Properties().stacksTo(1));
     }
 
+
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new IClientItemExtensions() {
@@ -32,14 +35,6 @@ public class VoxelItem extends Item {
                 return VoxelWithoutLevelRenderer.getInstance();
             }
         });
-
     }
 
-    @Override
-    public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
-        boolean value = super.onEntitySwing(stack, entity);
-
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Messages.sendToServer(new WeaponRequestPacket(UUID.randomUUID())));
-        return value;
-    }
 }

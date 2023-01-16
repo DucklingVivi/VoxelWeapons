@@ -1,41 +1,30 @@
 package com.ducklingvivi.voxelweapons.library;
 
-import com.ducklingvivi.voxelweapons.voxelweapons;
-import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.StateHolder;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
+
+
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import java.util.Map;
-import java.util.Optional;
 
 public class voxelUtils {
 
+    @OnlyIn(Dist.DEDICATED_SERVER)
     private static Level getLevelServer(){
         //HACKY
         return ServerLifecycleHooks.getCurrentServer().overworld();
     }
+    @OnlyIn(Dist.CLIENT)
     private static Level getLevelClient(){
         //SLIGHTLY HACKY
         return Minecraft.getInstance().level;
@@ -43,6 +32,7 @@ public class voxelUtils {
     public static Level getLevel(){
         Level level = null;
         //VERY HACKY OMG
+
         var temp = DistExecutor.unsafeCallWhenOn(Dist.DEDICATED_SERVER, () ->voxelUtils::getLevelServer);
         if (temp!=null) level = temp;
         var temp2 = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> voxelUtils::getLevelClient);
@@ -50,7 +40,9 @@ public class voxelUtils {
 
         return level;
     }
+
     public static ListTag writeAABB(AABB bb) {
+        if(bb == null) bb = new AABB(BlockPos.ZERO);
         ListTag bbtag = new ListTag();
         bbtag.add(FloatTag.valueOf((float) bb.minX));
         bbtag.add(FloatTag.valueOf((float) bb.minY));
@@ -72,7 +64,7 @@ public class voxelUtils {
 
 
 
-
+/*
     public static CompoundTag writeFluidState(FluidState p_178023_) {
         CompoundTag compoundtag = new CompoundTag();
         compoundtag.putString("Name", BuiltInRegistries.FLUID.getKey(p_178023_.getType()).toString());
@@ -118,6 +110,8 @@ public class voxelUtils {
             }
         }
     }
+
+
     private static <S extends StateHolder<?, S>, T extends Comparable<T>> S setValueHelper(S p_129205_, Property<T> p_129206_, String p_129207_, CompoundTag p_129208_, CompoundTag p_129209_) {
         Optional<T> optional = p_129206_.getValue(p_129208_.getString(p_129207_));
         if (optional.isPresent()) {
@@ -132,7 +126,7 @@ public class voxelUtils {
         return p_129211_.getName((T)p_129212_);
     }
 
-
+ */
 }
 
 

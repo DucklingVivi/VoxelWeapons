@@ -1,11 +1,13 @@
 package com.ducklingvivi.voxelweapons.client.model;
 
 import com.ducklingvivi.voxelweapons.library.VoxelData;
+import com.ducklingvivi.voxelweapons.voxelweapons;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,15 +18,22 @@ import org.jetbrains.annotations.Nullable;
 
 public class VoxelTintAndBlockGetter implements BlockAndTintGetter {
 
+
     ClientLevel level;
     VoxelData data;
-    public VoxelTintAndBlockGetter(ClientLevel level , VoxelData data){
+
+    BlockPos blockPos;
+    int light;
+    public VoxelTintAndBlockGetter(ClientLevel level , VoxelData data, BlockPos blockPos, int light){
         this.level = level;
         this.data = data;
+        this.blockPos = blockPos;
+        this.light = light;
     }
+
     @Override
-    public float getShade(Direction p_45522_, boolean p_45523_) {
-        return level.getShade(p_45522_,p_45523_);
+    public float getShade(Direction pDirection, boolean pShade) {
+        return level.getShade(pDirection,pShade);
     }
 
     @Override
@@ -34,7 +43,7 @@ public class VoxelTintAndBlockGetter implements BlockAndTintGetter {
 
     @Override
     public int getBlockTint(BlockPos p_45520_, ColorResolver p_45521_) {
-        return level.getBlockTint(p_45520_,p_45521_);
+        return level.calculateBlockTint(blockPos,p_45521_);
     }
 
     @Nullable
@@ -52,9 +61,14 @@ public class VoxelTintAndBlockGetter implements BlockAndTintGetter {
 
     }
 
+
     @Override
     public FluidState getFluidState(BlockPos p_45569_) {
-        return data.devGetFluids().getOrDefault(p_45569_, Fluids.EMPTY.defaultFluidState());
+        if(data.devGetBlocks().containsKey(p_45569_)){
+            return data.devGetBlocks().get(p_45569_).state.getFluidState();
+        }
+        return Fluids.EMPTY.defaultFluidState();
+
     }
 
     @Override
@@ -66,4 +80,16 @@ public class VoxelTintAndBlockGetter implements BlockAndTintGetter {
     public int getMinBuildHeight() {
         return level.getMinBuildHeight();
     }
+
+    @Override
+    public int getBrightness(LightLayer pLightType, BlockPos pBlockPos) {
+        int k;
+        if(pLightType == LightLayer.BLOCK){
+            k = light >> 4 & 255;
+        }else{
+            k =light >> 20 & 255;
+        }
+        return k;
+    }
+
 }

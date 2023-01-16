@@ -1,12 +1,11 @@
 package com.ducklingvivi.voxelweapons.library;
 
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,8 +16,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.registries.GameData;
-import org.apache.commons.lang3.tuple.Pair;
-import org.checkerframework.checker.units.qual.C;
 
 
 import java.util.*;
@@ -43,19 +40,14 @@ public class VoxelData {
         bounds = new AABB(BlockPos.ZERO);
     }
 
+    // TODO you're going to need a semi-persistent client-side structure to manage this anyway, so you define your packet so that it selects a specific area [at worst, a single block - you may need it if your blocks can be tile entities that may contain a large amount of data itself] to update
 
     public void readNBT(Level world, CompoundTag nbt) {
         blocks.clear();
         presentTileEntities.clear();
         Tag blocks = nbt.get("Blocks");
-        boolean usePalettedDeserialization =
-                blocks != null && blocks.getId() == Tag.TAG_COMPOUND && ((CompoundTag) blocks).contains("Palette");
         if(blocks!=null){
-            readBlocksCompound(blocks, world, usePalettedDeserialization);
-        }
-        ListTag fluids = nbt.getList("Fluids",Tag.TAG_COMPOUND);
-        if(fluids != null){
-            readFluidsCompound(fluids);
+            readBlocksCompound(blocks, world);
         }
 
         offset = NbtUtils.readBlockPos(nbt.getCompound("Offset"));
@@ -69,7 +61,6 @@ public class VoxelData {
         nbt.put("Offset", NbtUtils.writeBlockPos(offset));
         nbt.put("Blocks", writeBlocksCompound());
         nbt.put("Bounds", voxelUtils.writeAABB(bounds));
-        nbt.put("Fluids", writeFluidsCompound());
         return nbt;
     }
 
@@ -78,9 +69,8 @@ public class VoxelData {
         voxelData.readNBT(world, nbt);
         return voxelData;
     }
-    protected Pair<StructureBlockInfo, FluidState> capture(Level world, BlockPos pos) {
+    protected StructureBlockInfo capture(Level world, BlockPos pos) {
         BlockState blockstate = world.getBlockState(pos);
-        FluidState fluidstate = world.getFluidState(pos);
         if (blockstate.getBlock() instanceof ButtonBlock) {
             blockstate = blockstate.setValue(ButtonBlock.POWERED, false);
             world.scheduleTick(pos, blockstate.getBlock(), -1);
@@ -92,7 +82,7 @@ public class VoxelData {
 
 
         CompoundTag compoundnbt = getTileEntityNBT(world, pos);
-        return Pair.of(new StructureBlockInfo(pos, blockstate, compoundnbt), fluidstate);
+        return new StructureBlockInfo(pos, blockstate, compoundnbt);
     }
 
     private CompoundTag getTileEntityNBT(Level world, BlockPos pos) {
@@ -113,79 +103,71 @@ public class VoxelData {
     public Map<BlockPos, FluidState> devGetFluids(){
         return fluids;
     }
+
+    public void devAddRange(BlockPos start, BlockPos end, Level World){
+        for(BlockPos target : BlockPos.betweenClosed(start,end)){
+            addBlock(target,capture(World,target));
+        }
+    }
     public void devAddBlock(BlockPos blockPos, Level world){
         addBlock(blockPos, capture(world, blockPos));
     }
-    protected void addBlock(BlockPos pos, Pair<StructureBlockInfo, FluidState> pair) {
-        StructureBlockInfo captured = pair.getKey();
-        BlockPos localPos = pos.subtract(offset);
-        StructureBlockInfo structureBlockInfo = new StructureBlockInfo(localPos, captured.state, captured.nbt);
-
-        FluidState fluidState = pair.getValue();
-        if(!fluidState.isEmpty()){
-            fluids.put(localPos,fluidState);
+    protected void addBlock(BlockPos pos, StructureBlockInfo pair) {
+        if (pair.state.isAir()){
+            return;
         }
+        BlockPos localPos = pos.subtract(offset);
+        StructureBlockInfo structureBlockInfo = new StructureBlockInfo(localPos, pair.state, pair.nbt);
+
 
         if (blocks.put(localPos, structureBlockInfo) != null)
             return;
         bounds = bounds.minmax(new AABB(localPos));
     }
 
-    private ListTag writeFluidsCompound(){
-        ListTag fluidList = new ListTag();
-        fluids.forEach((blockPos,fluidState)->{
-            CompoundTag fluidTag = new CompoundTag();
-            fluidTag.putLong("Pos",blockPos.asLong());
-            fluidTag.put("State",voxelUtils.writeFluidState(fluidState));
 
-            fluidList.add(fluidTag);
-        });
-        return fluidList;
-    }
 
     private CompoundTag writeBlocksCompound() {
         CompoundTag compound = new CompoundTag();
-        HashMapPalette<BlockState> palette = new HashMapPalette<>(GameData.getBlockStateIDMap(), 16, (i, s) -> {
-            throw new IllegalStateException("Palette Map index exceeded maximum value");
-        });
+//        HashMapPalette<BlockState> palette = new HashMapPalette<>(GameData.getBlockStateIDMap(), 16, (i, s) -> {
+//            throw new IllegalStateException("Palette Map index exceeded maximum value");
+//        });
         ListTag blockList = new ListTag();
         for (StructureBlockInfo block : this.blocks.values()) {
-            int id = palette.idFor(block.state);
+            // int id = palette.idFor(block.state);
             CompoundTag c = new CompoundTag();
             c.putLong("Pos", block.pos.asLong());
-            c.putInt("State", id);
+            c.putInt("State", Block.getId(block.state));
             if (block.nbt != null)
                 c.put("Data", block.nbt);
             blockList.add(c);
         }
 
-
-
-        ListTag paletteNBT = new ListTag();
-        for (int i = 0; i < palette.getSize(); ++i)
-            paletteNBT.add(NbtUtils.writeBlockState(palette.values.byId(i)));
-        compound.put("Palette", paletteNBT);
+        //ListTag paletteNBT = new ListTag();
+//        for (int i = 0; i < palette.getSize(); ++i)
+//            paletteNBT.add(NbtUtils.writeBlockState(palette.values.byId(i)));
+        //compound.put("Palette", paletteNBT);
         compound.put("BlockList", blockList);
 
         return compound;
 
     }
-    private void readFluidsCompound(Tag compound) {
-
-        ListTag listTag = (ListTag) compound;
-        for (int i = 0; i < listTag.size(); i++) {
-            CompoundTag tag = listTag.getCompound(i);
-            BlockPos pos = BlockPos.of(tag.getLong("Pos"));
-            FluidState fluidState = voxelUtils.readFLuidState(voxelUtils.getLevel().holderLookup(Registries.FLUID),tag.getCompound("State"));
-            //TODO FIX FLUIDSTATE
-            fluids.put(pos, fluidState);
-        }
-
-    }
-    private void readBlocksCompound(Tag compound, Level world, boolean usePalettedDeserialization) {
+//    private void readFluidsCompound(Tag compound) {
+//
+//        ListTag listTag = (ListTag) compound;
+//        for (int i = 0; i < listTag.size(); i++) {
+//            CompoundTag tag = listTag.getCompound(i);
+//            BlockPos pos = BlockPos.of(tag.getLong("Pos"));
+//            FluidState fluidState = voxelUtils.readFLuidState(voxelUtils.getLevel().holderLookup(Registries.FLUID),tag.getCompound("State"));
+//            //TODO FIX FLUIDSTATE
+//            fluids.put(pos, fluidState);
+//        }
+//
+//    }
+    private void readBlocksCompound(Tag compound, Level world) {
         HashMapPalette<BlockState> palette = null;
-        ListTag blockList;
-        if (usePalettedDeserialization) {
+        CompoundTag d = ((CompoundTag) compound);
+        /*if (usePalettedDeserialization) {
             CompoundTag c = ((CompoundTag) compound);
             palette = new HashMapPalette<>(GameData.getBlockStateIDMap(), 16, (i, s) -> {
                 throw new IllegalStateException("Palette Map index exceeded maximum");
@@ -199,13 +181,13 @@ public class VoxelData {
         } else {
             blockList = (ListTag) compound;
         }
-        HashMapPalette<BlockState> finalPalette = palette;
+        HashMapPalette<BlockState> finalPalette = palette;*/
 
-
+        ListTag blockList = d.getList("BlockList", Tag.TAG_COMPOUND);
         blockList.forEach(e -> {
             CompoundTag c = (CompoundTag) e;
 
-            StructureBlockInfo info = usePalettedDeserialization ? readStructureBlockInfo(c, finalPalette) : legacyReadStructureBlockInfo(c);
+            StructureBlockInfo info = readStructureBlockInfo(c);
 
             this.blocks.put(info.pos, info);
 
@@ -230,15 +212,9 @@ public class VoxelData {
 
     }
 
-    private static StructureBlockInfo readStructureBlockInfo(CompoundTag blockListEntry,
-                                                             HashMapPalette<BlockState> palette) {
+    private static StructureBlockInfo readStructureBlockInfo(CompoundTag blockListEntry) {
         return new StructureBlockInfo(BlockPos.of(blockListEntry.getLong("Pos")),
-                Objects.requireNonNull(palette.valueFor(blockListEntry.getInt("State"))),
-                blockListEntry.contains("Data") ? blockListEntry.getCompound("Data") : null);
-    }
-    private static StructureBlockInfo legacyReadStructureBlockInfo(CompoundTag blockListEntry) {
-        return new StructureBlockInfo(NbtUtils.readBlockPos(blockListEntry.getCompound("Pos")),
-                NbtUtils.readBlockState(voxelUtils.getLevel().holderLookup(Registries.BLOCK),blockListEntry.getCompound("Block")),
+                Objects.requireNonNull(Block.stateById(blockListEntry.getInt("State"))),
                 blockListEntry.contains("Data") ? blockListEntry.getCompound("Data") : null);
     }
 

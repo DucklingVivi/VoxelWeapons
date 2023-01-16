@@ -12,15 +12,19 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+        classpath group: 'org.parchmentmc', name: 'librarian' , version: '1.+', changing: true
     }
+
 }
+
+
+
 
 apply plugin:   'net.minecraftforge.gradle'
 apply plugin:   'maven-publish'
 apply plugin:   'eclipse'
-apply plugin: 'org.spongepowered.mixin'
-
-
+apply plugin:   'org.spongepowered.mixin'
+apply plugin:   'org.parchmentmc.librarian.forgegradle'
 
 repositories {
     maven { // JEI
@@ -38,7 +42,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
 
-    mappings channel: 'official', version: '1.19.3'
+    mappings channel: 'parchment', version: '2022.12.18-1.19.3'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
