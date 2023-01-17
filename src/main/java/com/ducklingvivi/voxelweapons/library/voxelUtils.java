@@ -10,6 +10,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.Level;
 
 
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -55,7 +56,7 @@ public class voxelUtils {
 
     public static AABB readAABB(ListTag bbtag) {
         if (bbtag == null || bbtag.isEmpty())
-            return null;
+            return new AABB(BlockPos.ZERO);
         return new AABB(bbtag.getFloat(0), bbtag.getFloat(1), bbtag.getFloat(2), bbtag.getFloat(3),
                 bbtag.getFloat(4), bbtag.getFloat(5));
     }

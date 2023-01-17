@@ -61,10 +61,8 @@ public class WeaponBakedModelFinalized implements IDynamicBakedModel {
                 for (StructureTemplate.StructureBlockInfo structureBlockInfo: data.devGetVoxels()) {
                     BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(structureBlockInfo.state);
 
-                    //TODO FIX LEAF BLOCKS
-
                     ModelData modelData = model.getModelData(Minecraft.getInstance().level,Minecraft.getInstance().player.blockPosition(),structureBlockInfo.state, ModelData.builder().build());
-                    Transformation translate = transformBlock(structureBlockInfo.pos.getX(), structureBlockInfo.pos.getY(), structureBlockInfo.pos.getZ(), 0.1f);
+                    Transformation translate = transformBlock(structureBlockInfo.pos.getX(), structureBlockInfo.pos.getY(), structureBlockInfo.pos.getZ(), 0.3f);
                     IQuadTransformer transformer = QuadTransformers.applying(translate);
                     modelQuads.addAll(transformer.process(model.getQuads(structureBlockInfo.state, side, rand, modelData, null)));
                 }

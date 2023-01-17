@@ -3,6 +3,7 @@ package com.ducklingvivi.voxelweapons.networking;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
@@ -62,6 +63,9 @@ public class Messages {
 
     public static <MSG> void sendToAllPlayers(MSG message) {
         INSTANCE.send(PacketDistributor.ALL.noArg(), message);
+    }
+    public static <MSG> void sendToAllPlayersInLevel(MSG message, Level level) {
+        INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension), message);
     }
 
 }

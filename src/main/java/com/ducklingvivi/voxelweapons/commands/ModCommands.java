@@ -10,9 +10,8 @@ public class ModCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralCommandNode<CommandSourceStack> commands = dispatcher.register(
                 Commands.literal(voxelweapons.MODID)
-                        .then(CommandCreateLevel.register(dispatcher))
-                        .then(CommandDeleteLevel.register(dispatcher))
-                        .then(CommandCreateWeapon.register(dispatcher))
+                        .then(CommandDimension.register(dispatcher))
+                        .then(CommandWeapon.register(dispatcher))
         );
         dispatcher.register(Commands.literal("voxel").redirect(commands));
     }

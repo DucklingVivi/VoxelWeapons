@@ -1,60 +1,94 @@
 package com.ducklingvivi.voxelweapons.setup;
 
 
-
+import com.ducklingvivi.voxelweapons.client.model.VoxelDataClient;
+import com.ducklingvivi.voxelweapons.client.render.LineBoxRenderer;
+import com.ducklingvivi.voxelweapons.client.render.OriginRenderer;
+import com.ducklingvivi.voxelweapons.client.render.VoxelCreatorClientData;
 import com.ducklingvivi.voxelweapons.commands.ModCommands;
 import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
 import com.ducklingvivi.voxelweapons.library.VoxelCreatorSavedData;
-
+import com.ducklingvivi.voxelweapons.library.VoxelSavedData;
 import com.ducklingvivi.voxelweapons.networking.DimensionCreatorPacket;
 import com.ducklingvivi.voxelweapons.networking.DimensionRegistryUpdatePacket;
 import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.google.common.collect.ImmutableSet;
-
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.telemetry.events.WorldLoadEvent;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
-
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = voxelweapons.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class ModSetup {
+public class ModSetupClient {
 
-    @SubscribeEvent
-    public static void onRegisterCommandEvent(RegisterCommandsEvent event) {
-        ModCommands.register(event.getDispatcher());
+
+    public static void init(FMLClientSetupEvent event) {
+
+        MinecraftForge.EVENT_BUS.addListener(ModSetupClient::tickEvent);
+        MinecraftForge.EVENT_BUS.addListener(ModSetupClient::renderEvent);
+
+
+
     }
+    private static void renderEvent(RenderLevelStageEvent event){
+        if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
+            if (Minecraft.getInstance().level.dimension().location().getNamespace().equals(voxelweapons.MODID)) {
+                boolean flag = false;
 
-    public static void init(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            Dimensions.register();
-        });
+                Tesselator tesselator = Tesselator.getInstance();
+                PoseStack poseStack = event.getPoseStack();
+                Camera cam = event.getCamera();
 
-        MinecraftForge.EVENT_BUS.addListener(ModSetup::onUseItem);
-        MinecraftForge.EVENT_BUS.addListener(ModSetup::onLogin);
-        MinecraftForge.EVENT_BUS.addListener(ModSetup::onDimensionChangeServer);
-        MinecraftForge.EVENT_BUS.addListener(ModSetup::onPlaceBlock);
+                for (ItemStack stack : Minecraft.getInstance().player.getHandSlots()) {
+                    if (stack.is(Items.ENDER_EYE)) {
+                        flag = true;
+                    }
+                }if (flag) {
+                    OriginRenderer.render(tesselator,poseStack,cam);
+                }
 
-
+                AABB aabb = VoxelCreatorClientData.INSTANCE.getBoundingBox();
+                LineBoxRenderer.render(tesselator,poseStack,cam,aabb);
+            }
+        }
+    }
+    private static void tickEvent(TickEvent.ClientTickEvent event){
+        if(event.phase == TickEvent.Phase.END){
+            VoxelDataClient.tickAll();
+        }
     }
 
 

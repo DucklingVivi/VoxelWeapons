@@ -1,12 +1,10 @@
 package com.ducklingvivi.voxelweapons.dimensions;
 
+import com.ducklingvivi.voxelweapons.setup.Registration;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
@@ -16,14 +14,17 @@ import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.Structure.StructureSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -59,9 +60,28 @@ public class VoxelChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void buildSurface(WorldGenRegion p_223050_, StructureManager p_223051_, RandomState p_223052_, ChunkAccess p_223053_) {
+    public void buildSurface(WorldGenRegion pLevel, StructureManager pStructureManager, RandomState pRandom, ChunkAccess pChunk) {
+        BlockState floor = Registration.VOXELFLOORBLOCK.get().defaultBlockState();
+        BlockState barrier = Blocks.BARRIER.defaultBlockState();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        pChunk.getPos().getWorldPosition();
+        int x,y,z;
+        for (x = 0; x < 16; x++) {
+            for (z = 0; z < 16; z++) {
+                pChunk.setBlockState(pos.set(x,0,z),floor,false);
+                pChunk.setBlockState(pos.set(x,255,z),barrier,false);
+                BlockPos pos1 = pChunk.getPos().getWorldPosition().offset(x,0,z);
+                if(Math.abs(pos1.getX()) > 50 || Math.abs(pos1.getZ()) > 50){
+                    for (y = 0; y < 255; y++) {
+                        pChunk.setBlockState(pos.set(x,y,z),barrier,false);
+                    }
+                }
+            }
+        }
+
 
     }
+
 
     @Override
     public void spawnOriginalMobs(WorldGenRegion p_62167_) {

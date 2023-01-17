@@ -1,8 +1,5 @@
 package com.ducklingvivi.voxelweapons.networking;
-
-import com.ducklingvivi.voxelweapons.client.model.VoxelDataClient;
-import com.ducklingvivi.voxelweapons.commands.CommandCreateWeapon;
-import com.ducklingvivi.voxelweapons.library.VoxelData;
+import com.ducklingvivi.voxelweapons.client.render.VoxelCreatorClientData;
 import com.ducklingvivi.voxelweapons.library.voxelUtils;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 
@@ -10,12 +7,11 @@ import com.ducklingvivi.voxelweapons.voxelweapons;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.server.ServerLifecycleHooks;
-import org.antlr.v4.codegen.model.Sync;
-
-
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -43,6 +39,7 @@ public class DimensionCreatorPacket {
         CompoundTag tag = new CompoundTag();
         //tag.putUUID("uuid", uuid);
         tag.putString("operation",operation.toString());
+        tag.put("data", data);
         buf.writeNbt(tag);
     }
 
@@ -52,6 +49,9 @@ public class DimensionCreatorPacket {
             switch (operation){
                 case SYNCORIGIN -> {
                    SyncOrigin();
+                }
+                case SYNCBBOUND -> {
+                    SyncBound();
                 }
                 case SYNCALL -> {
                     SyncAll();
@@ -67,15 +67,21 @@ public class DimensionCreatorPacket {
     public enum DimensionCreatorOperation{
 
         SYNCORIGIN,
+        SYNCBBOUND,
         SYNCALL
 
     }
 
     private void SyncAll(){
         SyncOrigin();
+        SyncBound();
     }
     private void SyncOrigin(){
-        BlockPos originPos = NbtUtils.readBlockPos(data.getCompound("ORIGIN"));
-        voxelweapons.LOGGER.info("Origin set to {}",originPos.toShortString());
+        BlockPos originPos = NbtUtils.readBlockPos(data.getCompound("Origin"));
+        VoxelCreatorClientData.INSTANCE.setOrigin(originPos);
+    }
+    private void SyncBound(){
+        AABB boundingBox = voxelUtils.readAABB(data.getList("BoundingBox", Tag.TAG_FLOAT));
+        VoxelCreatorClientData.INSTANCE.setBoundingBox(boundingBox);
     }
 }

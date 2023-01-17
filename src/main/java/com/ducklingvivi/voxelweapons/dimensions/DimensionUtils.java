@@ -62,6 +62,7 @@ public class DimensionUtils {
         try {
             unregisterLevel(server, toDelete);
             FileUtils.deleteDirectory(dir);
+            server.markWorldsDirty();
         } catch (IOException e) {
             voxelweapons.LOGGER.warn("DimensionUtils.tryDeleteDimension: Failed to delete the directory for dimension {}", toDelete.location());
         }
@@ -216,7 +217,7 @@ public class DimensionUtils {
         MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.LevelEvent.Unload(level));
 
 
-        server.markWorldsDirty();
+
 
         Messages.sendToAllPlayers(new DimensionRegistryUpdatePacket(ImmutableSet.of(), ImmutableSet.of(levelKey)));
     }

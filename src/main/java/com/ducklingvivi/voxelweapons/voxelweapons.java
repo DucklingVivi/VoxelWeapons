@@ -2,29 +2,54 @@ package com.ducklingvivi.voxelweapons;
 
 import com.ducklingvivi.voxelweapons.client.model.VoxelDataClient;
 import com.ducklingvivi.voxelweapons.client.model.WeaponBakedModel;
+import com.ducklingvivi.voxelweapons.client.render.VoxelCreatorClientData;
 import com.ducklingvivi.voxelweapons.library.VoxelCreatorSavedData;
 import com.ducklingvivi.voxelweapons.networking.DimensionCreatorPacket;
+import com.ducklingvivi.voxelweapons.networking.DimensionRegistryUpdatePacket;
 import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.setup.ModSetup;
+import com.ducklingvivi.voxelweapons.setup.ModSetupClient;
 import com.ducklingvivi.voxelweapons.setup.Registration;
+import com.google.common.collect.ImmutableSet;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.debug.StructureRenderer;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -34,7 +59,15 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.joml.AxisAngle4f;
+import org.joml.Matrix4f;
 import org.slf4j.Logger;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(voxelweapons.MODID)
@@ -53,17 +86,14 @@ public class voxelweapons {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(ModSetup::init);
-
+        modEventBus.addListener(ModSetupClient::init);
         Messages.register();
 
         Registration.init();
 
 
         // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.addListener(this::tickEvent);
-        MinecraftForge.EVENT_BUS.addListener(this::onUseItem);
-        MinecraftForge.EVENT_BUS.addListener(this::onLogin);
+
         // Register the item to a creative tab
 
     }
@@ -75,42 +105,7 @@ public class voxelweapons {
 
     }
 
-    private void tickEvent(TickEvent.ClientTickEvent event){
-        if(event.phase == TickEvent.Phase.END){
-            VoxelDataClient.tickAll();
-        }
-    }
 
-    private void onLogin(PlayerEvent.PlayerLoggedInEvent event){
-
-        if(event.getEntity().level.dimension().location().getNamespace().equals(voxelweapons.MODID)){
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            ServerLevel level = server.getLevel(event.getEntity().level.dimension());
-            ServerPlayer player = server.getPlayerList().getPlayer(event.getEntity().getUUID());
-            assert level != null;
-            CompoundTag tag = VoxelCreatorSavedData.get(level).save(new CompoundTag());
-
-            Messages.sendToPlayer(new DimensionCreatorPacket(DimensionCreatorPacket.DimensionCreatorOperation.SYNCALL, tag), player);
-        }
-    }
-    private void onUseItem(PlayerInteractEvent.RightClickBlock event){
-        if(event.getSide() == LogicalSide.SERVER){
-            if(event.getItemStack().is(Items.ENDER_EYE)){
-                if(event.getLevel().dimension().location().getNamespace().equals(voxelweapons.MODID)){
-                    MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-                    ServerLevel level =server.getLevel(event.getLevel().dimension());
-                    ServerPlayer player = server.getPlayerList().getPlayer(event.getEntity().getUUID());
-
-                    assert level != null;
-                    VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(level);
-                    savedData.setOrigin(event.getPos());
-
-                    CompoundTag tag = savedData.save(new CompoundTag());
-                    Messages.sendToPlayer(new DimensionCreatorPacket(DimensionCreatorPacket.DimensionCreatorOperation.SYNCORIGIN, tag), player);
-                };
-            }
-        }
-    }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent

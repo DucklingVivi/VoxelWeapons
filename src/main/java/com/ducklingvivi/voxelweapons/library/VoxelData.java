@@ -51,7 +51,7 @@ public class VoxelData {
         }
 
         offset = NbtUtils.readBlockPos(nbt.getCompound("Offset"));
-        bounds = voxelUtils.readAABB(nbt.getList("Bounds", Tag.TAG_COMPOUND));
+        bounds = voxelUtils.readAABB(nbt.getList("Bounds", Tag.TAG_FLOAT));
     }
 
 

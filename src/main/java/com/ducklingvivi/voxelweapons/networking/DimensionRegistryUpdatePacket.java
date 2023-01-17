@@ -61,6 +61,7 @@ public class DimensionRegistryUpdatePacket {
             LocalPlayer player = Minecraft.getInstance().player;
             if(player != null){
                 Set<ResourceKey<Level>> commandAutofillLevels = player.connection.levels();
+
                 commandAutofillLevels.addAll(this.newDims);
                 for (ResourceKey<Level> resourceKey: this.removedDims) {
                     commandAutofillLevels.remove(resourceKey);

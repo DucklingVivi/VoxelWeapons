@@ -171,6 +171,7 @@ public class VoxelWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer {
                     var model = Minecraft.getInstance().getBlockRenderer().getBlockModel(info.state);
                     var modelData = model.getModelData(tintAndBlockGetter, info.pos, info.state, data.modelData.getOrDefault(info.pos, ModelData.builder().build()));
                     randomsource.setSeed(info.state.getSeed(info.pos));
+
                     for (RenderType rendertype : model.getRenderTypes(info.state, randomsource, modelData)) {
                         poseStack.pushPose();
                         poseStack.translate(0.5,0.5,0.5);
