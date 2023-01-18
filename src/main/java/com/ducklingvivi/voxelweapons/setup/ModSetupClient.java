@@ -2,6 +2,7 @@ package com.ducklingvivi.voxelweapons.setup;
 
 
 import com.ducklingvivi.voxelweapons.client.model.VoxelDataClient;
+import com.ducklingvivi.voxelweapons.client.render.ForceFieldRenderer;
 import com.ducklingvivi.voxelweapons.client.render.LineBoxRenderer;
 import com.ducklingvivi.voxelweapons.client.render.OriginRenderer;
 import com.ducklingvivi.voxelweapons.client.render.VoxelCreatorClientData;
@@ -82,6 +83,8 @@ public class ModSetupClient {
 
                 AABB aabb = VoxelCreatorClientData.INSTANCE.getBoundingBox();
                 LineBoxRenderer.render(tesselator,poseStack,cam,aabb);
+                AABB aabb1 = aabb.inflate(10);
+                ForceFieldRenderer.render(tesselator,poseStack,cam,aabb1);
             }
         }
     }

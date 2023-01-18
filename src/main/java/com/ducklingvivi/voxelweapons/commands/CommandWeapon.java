@@ -43,10 +43,10 @@ public class CommandWeapon {
         @Override
         public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
             UUID uuid = UUID.randomUUID();
-            ServerLevel level = DimensionUtils.createWorld(ServerLifecycleHooks.getCurrentServer(), uuid.toString());
+            ServerLevel level = VoxelSavedData.get().CreateDimension(uuid);
             ServerPlayer player = context.getSource().getPlayer();
             AABB boundingbox = new AABB(new BlockPos(-10,1,-10));
-            boundingbox = boundingbox.minmax(new AABB(new BlockPos(10,20,10)));
+            boundingbox = boundingbox.minmax(new AABB(new BlockPos(10,40,10)));
             VoxelCreatorSavedData.get(level).setBoundingBox(boundingbox);
             level.getDataStorage().save();
             player.teleportTo(level, .5,1,.5,1f,0f);

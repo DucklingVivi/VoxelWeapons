@@ -19,18 +19,19 @@ public class LineBoxRenderer {
         poseStack.pushPose();
 
         RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-
+        RenderSystem.lineWidth(5.0f);
         poseStack.translate(-cam.getPosition().x, -cam.getPosition().y,
                 -cam.getPosition().z);
         //poseStack.translate(boundingBox.minX,boundingBox.minY,
         //        boundingBox.minZ);
-        poseStack.scale(1.01f,1.01f,1.01f);
-        poseStack.translate(-0.005,-0.005,-0.005);
+        //poseStack.scale(1.01f,1.01f,1.01f);
+        //poseStack.translate(-0.00,-0.005,-0.005);
         buffer.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
         RenderSystem.disableCull();
         LevelRenderer.renderLineBox(poseStack, buffer,boundingBox, 0,1,0,1);
 
         tesselator.end();
+        RenderSystem.lineWidth(1.0f);
         poseStack.popPose();
     }
 

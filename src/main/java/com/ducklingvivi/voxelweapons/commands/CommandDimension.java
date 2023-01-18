@@ -1,6 +1,7 @@
 package com.ducklingvivi.voxelweapons.commands;
 
 import com.ducklingvivi.voxelweapons.dimensions.DimensionUtils;
+import com.ducklingvivi.voxelweapons.library.VoxelSavedData;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -62,7 +63,7 @@ public class CommandDimension {
         public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
             ServerLevel level = DimensionArgument.getDimension(context,"dimension");
             if(!level.dimension().location().getNamespace().equals(voxelweapons.MODID)) return -1;
-            DimensionUtils.deleteWorld(ServerLifecycleHooks.getCurrentServer(), level.dimension().location().getPath());
+            VoxelSavedData.get().DeleteDimension(Integer.valueOf(level.dimension().location().getPath()));
             return 0;
         }
 
