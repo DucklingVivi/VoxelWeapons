@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "voxelweapons:block/voxel_floor_border_twoedge"
+  }
+}

@@ -1,6 +1,7 @@
 package com.ducklingvivi.voxelweapons.library;
 
 import com.ducklingvivi.voxelweapons.dimensions.DimensionUtils;
+import com.ducklingvivi.voxelweapons.dimensions.VoxelChunkGenerator;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -81,7 +82,7 @@ public class VoxelSavedData extends SavedData {
     }
 
 
-    public ServerLevel CreateDimension(UUID uuid){
+    public ServerLevel CreateDimension(UUID uuid, VoxelChunkGenerator.Settings settings){
         boolean flag = false;
         Integer x = 0;
         while(!flag){
@@ -93,7 +94,7 @@ public class VoxelSavedData extends SavedData {
         }
         DimensionMap.put(uuid, x);
         setDirty(true);
-        return DimensionUtils.createWorld(ServerLifecycleHooks.getCurrentServer(),x.toString());
+        return DimensionUtils.createWorld(ServerLifecycleHooks.getCurrentServer(),x.toString(),settings);
     }
     public void DeleteDimension(UUID uuid){
         if(DimensionMap.containsKey(uuid)){

@@ -81,7 +81,7 @@ public class DimensionUtils {
         tryDeleteDimension(minecraftServer, key);
     }
 
-    public static ServerLevel createWorld(MinecraftServer minecraftServer, String name) {
+    public static ServerLevel createWorld(MinecraftServer minecraftServer, String name, VoxelChunkGenerator.Settings settings) {
 
         ResourceLocation id = new ResourceLocation(voxelweapons.MODID, name);
 
@@ -92,7 +92,7 @@ public class DimensionUtils {
         Holder<DimensionType> type = registryAccess.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(Dimensions.VOXELDIMENSIONTYPE);
 
         ServerLevel result = getOrCreateLevel(minecraftServer, key, (server, registryKey) -> {
-            ChunkGenerator generator = new VoxelChunkGenerator(registryAccess.registryOrThrow(Registries.BIOME).asLookup());
+            ChunkGenerator generator = new VoxelChunkGenerator(registryAccess.registryOrThrow(Registries.BIOME).asLookup(), settings);
             return new LevelStem(type, generator);
         });
 

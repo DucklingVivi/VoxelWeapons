@@ -25,28 +25,10 @@ public class CommandDimension {
     public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
         return Commands.literal("dimension")
                 .requires(cs -> cs.hasPermission(1))
-                .then(CommandCreateLevel.register(dispatcher))
                 .then(CommandDeleteLevel.register(dispatcher));
     }
 
 
-    private static class CommandCreateLevel implements Command<CommandSourceStack> {
-        private static final CommandCreateLevel CMD = new CommandCreateLevel();
-
-        public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
-            return Commands.literal("create")
-                    .requires(cs -> cs.hasPermission(1))
-                    .then(Commands.argument("name", StringArgumentType.word()).executes(CMD));
-
-        }
-
-        @Override
-        public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-            String name = context.getArgument("name", String.class);
-            DimensionUtils.createWorld(ServerLifecycleHooks.getCurrentServer(), name.toLowerCase());
-            return 0;
-        }
-    }
 
     private static class CommandDeleteLevel implements Command<CommandSourceStack> {
 

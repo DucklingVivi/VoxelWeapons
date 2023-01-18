@@ -1,0 +1,47 @@
+{
+  "variants": {
+    "connectingto=northwestcorner" : {
+      "model": "voxelweapons:block/voxel_floor_border_corner",
+      "y": 0
+    },
+    "connectingto=northeastcorner" : {
+      "model": "voxelweapons:block/voxel_floor_border_corner",
+      "y": 90
+    },
+    "connectingto=southeastcorner" : {
+      "model": "voxelweapons:block/voxel_floor_border_corner",
+      "y": 180
+    },
+    "connectingto=southwestcorner" : {
+      "model": "voxelweapons:block/voxel_floor_border_corner",
+      "y": 270
+    },
+    "connectingto=edgenorth" : {
+      "model": "voxelweapons:block/voxel_floor_border_edge",
+      "y": 0
+    },
+    "connectingto=edgeeast" : {
+      "model": "voxelweapons:block/voxel_floor_border_edge",
+      "y": 90
+    },"connectingto=edgesouth" : {
+      "model": "voxelweapons:block/voxel_floor_border_edge",
+      "y": 180
+    },"connectingto=edgewest" : {
+      "model": "voxelweapons:block/voxel_floor_border_edge",
+      "y": 270
+    },"connectingto=edgenorthsouth" : {
+      "model": "voxelweapons:block/voxel_floor_border_twoedge",
+      "y": 0
+    },"connectingto=edgeeastwest" : {
+      "model": "voxelweapons:block/voxel_floor_border_twoedge",
+      "y": 90
+    },"connectingto=center" : {
+      "model": "voxelweapons:block/voxel_floor_border_center",
+      "y": 0
+    },"connectingto=full" : {
+      "model": "voxelweapons:block/voxel_floor_border_full",
+      "y": 0
+    }
+
+  }
+}

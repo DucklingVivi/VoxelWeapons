@@ -80,11 +80,14 @@ public class ModSetupClient {
                 }if (flag) {
                     OriginRenderer.render(tesselator,poseStack,cam);
                 }
+                if(VoxelCreatorClientData.INSTANCE.isControllerVisible){
+                    VoxelCreatorClientData.INSTANCE.isControllerVisible = false;
 
+                }
                 AABB aabb = VoxelCreatorClientData.INSTANCE.getBoundingBox();
                 LineBoxRenderer.render(tesselator,poseStack,cam,aabb);
-                AABB aabb1 = aabb.inflate(10);
-                ForceFieldRenderer.render(tesselator,poseStack,cam,aabb1);
+//                AABB aabb1 = aabb.inflate(10);
+//                ForceFieldRenderer.render(tesselator,poseStack,cam,aabb1);
             }
         }
     }
