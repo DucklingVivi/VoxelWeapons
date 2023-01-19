@@ -9,6 +9,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 public class VoxelFloorControllerBlockEntity extends BlockEntity {
     public VoxelFloorControllerBlockEntity(BlockPos pPos, BlockState pBlockState) {
@@ -17,11 +18,15 @@ public class VoxelFloorControllerBlockEntity extends BlockEntity {
 
 
     public void tickClient(){
-        if(this.worldPosition.distToCenterSqr(Minecraft.getInstance().player.position())<2){
-            VoxelCreatorClientData.INSTANCE.isControllerVisible = true;
-        }
 
     }
+
+    @Override
+    public AABB getRenderBoundingBox() {
+        AABB originalAABB = super.getRenderBoundingBox();
+        return originalAABB.inflate(2);
+    }
+
     public void tickServer(){
 
     }

@@ -115,6 +115,16 @@ public class VoxelSavedData extends SavedData {
     }
 
 
+    public UUID getDimensionUUID(Integer integer){
+        if(DimensionMap.containsValue(integer)){
+            for (Map.Entry<UUID,Integer> entry  :DimensionMap.entrySet()) {
+                if(entry.getValue().equals(integer)){
+                    return entry.getKey();
+                }
+            }
+        }
+    return null;
+    }
     public VoxelData getData(UUID uuid){
         return Data.getOrDefault(uuid,new VoxelData());
     }
@@ -123,11 +133,9 @@ public class VoxelSavedData extends SavedData {
         setDirty();
     }
     public boolean addData(UUID uuid, VoxelData data){
-        if(!Data.containsKey(uuid)){
-            Data.put(uuid, data);
-            setDirty();
-            return true;
-        }
-        return false;
+        Data.put(uuid, data);
+        setDirty();
+
+        return true;
     }
 }

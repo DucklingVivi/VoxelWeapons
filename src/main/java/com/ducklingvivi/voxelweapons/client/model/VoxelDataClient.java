@@ -20,6 +20,10 @@ public class VoxelDataClient {
         voxelDataMap.put(uuid,data);
         voxelRemoveMap.put(uuid,REMOVE_TICK_TIME);
     }
+    public static void removeData(UUID uuid){
+        voxelDataMap.remove(uuid);
+        voxelRemoveMap.remove(uuid);
+    }
 
     public static VoxelData getData(UUID uuid) {
         voxelRemoveMap.put(uuid, REMOVE_TICK_TIME);

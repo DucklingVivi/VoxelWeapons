@@ -46,15 +46,16 @@ public class CommandWeapon {
         @Override
         public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 
-            AABB boundingbox = new AABB(new BlockPos(-10,1,-10));
-            boundingbox = boundingbox.minmax(new AABB(new BlockPos(10,40,10)));
+            AABB boundingbox = new AABB(new BlockPos(-5,1,-5));
+            boundingbox = boundingbox.minmax(new AABB(new BlockPos(5,40,5)));
             BlockPos pos = new BlockPos(boundingbox.maxX+4.5f,1,boundingbox.getCenter().z);
             VoxelChunkGenerator.Settings settings = new VoxelChunkGenerator.Settings(new VoxelChunkGenerator.FloorSettings((int)boundingbox.minX,(int)boundingbox.maxX,(int)boundingbox.minZ,(int)boundingbox.maxZ),pos.getX(),pos.getZ());
             UUID uuid = UUID.randomUUID();
             ServerLevel level = VoxelSavedData.get().CreateDimension(uuid,settings);
             ServerPlayer player = context.getSource().getPlayer();
-
+            VoxelCreatorSavedData.get(level).setLevelOrigin(context.getSource().getLevel().dimension());
             VoxelCreatorSavedData.get(level).setBoundingBox(boundingbox);
+            VoxelCreatorSavedData.get(level).setLevelOriginPos(player.blockPosition());
             level.getDataStorage().save();
             
             

@@ -1,8 +1,20 @@
 package com.ducklingvivi.voxelweapons.library;
 
 
+import com.ducklingvivi.voxelweapons.client.model.VoxelDataClient;
+import com.ducklingvivi.voxelweapons.networking.Messages;
+import com.ducklingvivi.voxelweapons.networking.WeaponPacket;
+import com.ducklingvivi.voxelweapons.setup.Registration;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -16,6 +28,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.registries.GameData;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 
 import java.util.*;
@@ -38,6 +51,61 @@ public class VoxelData {
         presentTileEntities = new HashMap<>();
         offset = new BlockPos(0,0,0);
         bounds = new AABB(BlockPos.ZERO);
+    }
+
+    public static void BuildWeapon(ServerLevel level, ServerPlayer player) {
+        Integer levelindex = Integer.valueOf(level.dimension().location().getPath());
+        UUID uuid = VoxelSavedData.get().getDimensionUUID(levelindex);
+
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+
+        VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(level);
+        AABB boundingbox = savedData.getBoundingBox();
+        BlockPos start = new BlockPos(boundingbox.minX,boundingbox.minY,boundingbox.minZ);
+        BlockPos end = new BlockPos(boundingbox.maxX,boundingbox.maxY,boundingbox.maxZ);
+        BlockPos origin = savedData.getOrigin();
+
+        VoxelData data = new VoxelData();
+        data.offset = origin;
+        data.devAddRange(start,end, level);
+        VoxelSavedData.get().addData(uuid,data);
+        server.overworld().getDataStorage().save();
+        //TODO Maybe change this
+        Messages.sendToAllPlayers(new WeaponPacket(uuid, new VoxelData(), WeaponPacket.WeaponOperation.DELETE));
+        ItemStack item = Registration.VOXELWEAPONITEM.get().getDefaultInstance();
+        CompoundTag tag =  item.getOrCreateTag();
+        tag.putUUID("voxelUUID", uuid);
+        item.setTag(tag);
+
+
+
+        ResourceKey<Level> levelOriginKey = savedData.getLevelOrigin();
+        final ServerLevel destLevel;
+        BlockPos pos = null;
+        if(server.levelKeys().contains(levelOriginKey)){
+            destLevel = server.getLevel(levelOriginKey);
+            pos = savedData.getLevelOriginPos();
+        }else {
+            ResourceKey<Level> respawnKey = player.getRespawnDimension();
+            destLevel = server.getLevel(levelOriginKey);
+            pos = player.getRespawnPosition();
+        }
+
+        if (pos == null) {
+            assert destLevel != null;
+            pos = destLevel.getSharedSpawnPos();
+        }
+        assert destLevel != null;
+
+        player.teleportTo(destLevel, pos.getX()+0.5, pos.getY(), pos.getZ()+0.5, player.getRespawnAngle(), 0f);
+        boolean flag = player.addItem(item);
+        if(!flag){
+            ItemEntity entity = new ItemEntity(destLevel, pos.getX()+0.5,pos.getY(),pos.getZ()+0.5,item);
+            destLevel.addFreshEntity(entity);
+        }
+
+        VoxelSavedData.get().DeleteDimension(levelindex);
+
     }
 
     // TODO you're going to need a semi-persistent client-side structure to manage this anyway, so you define your packet so that it selects a specific area [at worst, a single block - you may need it if your blocks can be tile entities that may contain a large amount of data itself] to update

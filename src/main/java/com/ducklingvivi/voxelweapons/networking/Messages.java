@@ -51,6 +51,12 @@ public class Messages {
                 .encoder(DimensionCreatorPacket::toBytes)
                 .consumerMainThread(DimensionCreatorPacket::handle)
                 .add();
+
+        net.messageBuilder(DimensionBuildPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(DimensionBuildPacket::new)
+                .encoder(DimensionBuildPacket::toBytes)
+                .consumerMainThread(DimensionBuildPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

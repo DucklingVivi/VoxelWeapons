@@ -75,6 +75,7 @@ public class DimensionCreatorPacket {
     private void SyncAll(){
         SyncOrigin();
         SyncBound();
+        VoxelCreatorClientData.INSTANCE.isWireFrameVisible = false;
     }
     private void SyncOrigin(){
         BlockPos originPos = NbtUtils.readBlockPos(data.getCompound("Origin"));

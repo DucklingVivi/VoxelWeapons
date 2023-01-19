@@ -53,11 +53,12 @@ public class WeaponPacket {
     public boolean handle(Supplier<NetworkEvent.Context> supplier){
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() ->{
-            VoxelData truedata = new VoxelData();
             if(operation == WeaponOperation.REPLACE){
-                truedata = data;
+                VoxelDataClient.addData(uuid,data);
             }
-            VoxelDataClient.addData(uuid,truedata);
+            if(operation == WeaponOperation.DELETE){
+                VoxelDataClient.removeData(uuid);
+            }
         });
         return true;
     }
@@ -65,7 +66,7 @@ public class WeaponPacket {
     public enum WeaponOperation{
         ADD,
         DELETE,
-        REPLACE
+        REPLACE,
 
     }
 }

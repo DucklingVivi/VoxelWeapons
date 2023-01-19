@@ -1,6 +1,7 @@
 package com.ducklingvivi.voxelweapons.dimensions;
 
 import com.ducklingvivi.voxelweapons.library.VoxelFloorBorderBlock;
+import com.ducklingvivi.voxelweapons.library.VoxelFloorControllerBlockEntity;
 import com.ducklingvivi.voxelweapons.setup.Registration;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.mojang.serialization.Codec;
@@ -155,6 +156,9 @@ public class VoxelChunkGenerator extends ChunkGenerator {
                         spawnState = controller;
                     }
                     pChunk.setBlockState(pos.set(x,0,z),spawnState,false);
+                    if(spawnState==controller){
+                        pChunk.setBlockEntity( new VoxelFloorControllerBlockEntity(pos, spawnState));
+                    }
                 } else{
                     pChunk.setBlockState(pos.set(x,0,z),floor,false);
                 }

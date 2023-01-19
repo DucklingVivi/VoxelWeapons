@@ -22,6 +22,7 @@ import net.minecraft.world.item.Items;
 
 import net.minecraft.world.phys.AABB;
 
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
