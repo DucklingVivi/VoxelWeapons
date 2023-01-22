@@ -1,6 +1,6 @@
 package com.ducklingvivi.voxelweapons.networking;
 
-import com.ducklingvivi.voxelweapons.client.model.VoxelDataClient;
+import com.ducklingvivi.voxelweapons.client.data.VoxelDataClient;
 import com.ducklingvivi.voxelweapons.library.VoxelData;
 import com.ducklingvivi.voxelweapons.library.voxelUtils;
 import com.ducklingvivi.voxelweapons.voxelweapons;
@@ -9,7 +9,6 @@ import com.ducklingvivi.voxelweapons.voxelweapons;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
 
 import java.util.UUID;

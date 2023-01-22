@@ -1,7 +1,6 @@
 package com.ducklingvivi.voxelweapons.networking;
-import com.ducklingvivi.voxelweapons.client.render.VoxelCreatorClientData;
+import com.ducklingvivi.voxelweapons.client.data.VoxelCreatorClientData;
 import com.ducklingvivi.voxelweapons.library.voxelUtils;
-import com.ducklingvivi.voxelweapons.voxelweapons;
 
 
 import net.minecraft.core.BlockPos;
@@ -9,10 +8,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.NetworkEvent;
-import java.util.UUID;
+
 import java.util.function.Supplier;
 
 public class DimensionCreatorPacket {

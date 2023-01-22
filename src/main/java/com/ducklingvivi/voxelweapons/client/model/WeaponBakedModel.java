@@ -43,11 +43,9 @@ public class WeaponBakedModel implements IDynamicBakedModel {
     public static final ModelResourceLocation modelResourceLocation
             = new ModelResourceLocation(Registration.VOXELWEAPONITEM.getId(), "inventory");
 
-    public ItemOverrides overrides;
     public WeaponBakedModel(){
         this.modelState = new ModelState(){};
         this.spriteGetter = material -> material.sprite();
-        this.overrides = new VoxelItemOverride();
     }
 
     @Override
@@ -83,7 +81,7 @@ public class WeaponBakedModel implements IDynamicBakedModel {
 
     @Override
     public ItemOverrides getOverrides() {
-        return overrides;
+        return ItemOverrides.EMPTY;
     }
 
 

@@ -1,5 +1,7 @@
 package com.ducklingvivi.voxelweapons.dimensions;
 
+import com.ducklingvivi.voxelweapons.library.VoxelData;
+import com.ducklingvivi.voxelweapons.library.data.VoxelSavedData;
 import com.ducklingvivi.voxelweapons.networking.DimensionRegistryUpdatePacket;
 import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.voxelweapons;
@@ -43,6 +45,9 @@ import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
 
 public class DimensionUtils {
+
+
+
 
 
     public static boolean tryDeleteDimension(MinecraftServer server, ResourceKey<Level> toDelete) {
@@ -220,25 +225,5 @@ public class DimensionUtils {
 
 
         Messages.sendToAllPlayers(new DimensionRegistryUpdatePacket(ImmutableSet.of(), ImmutableSet.of(levelKey)));
-    }
-//TODO FIX THIS INSTANTLY
-    public static List<String> GetDimensionStrings(){
-        List<String> retList = new ArrayList<>();
-        Set<ResourceKey<Level>> levels;
-        Set<ResourceKey<Level>> level1 = DistExecutor.unsafeCallWhenOn(Dist.CLIENT,() -> DimensionUtils::getLevelSetClient);
-        Set<ResourceKey<Level>> level2 = DistExecutor.unsafeCallWhenOn(Dist.DEDICATED_SERVER,() -> DimensionUtils::getLevelSetServer);
-        levels = level1 != null ? level1 :level2;
-        for (ResourceKey<Level> level: levels) {
-            if(level.location().getNamespace()==voxelweapons.MODID){
-                retList.add(level.location().getPath());
-            }
-        }
-        return retList;
-    }
-    private static Set<ResourceKey<Level>> getLevelSetClient(){
-        return Minecraft.getInstance().player.connection.levels();
-    }
-    private static Set<ResourceKey<Level>> getLevelSetServer(){
-        return ServerLifecycleHooks.getCurrentServer().levelKeys();
     }
 }

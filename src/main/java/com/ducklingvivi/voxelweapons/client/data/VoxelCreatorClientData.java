@@ -1,9 +1,8 @@
-package com.ducklingvivi.voxelweapons.client.render;
+package com.ducklingvivi.voxelweapons.client.data;
 
+import com.ducklingvivi.voxelweapons.client.render.VoxelControllerRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
-
-import javax.lang.model.util.Elements;
 
 public class VoxelCreatorClientData {
 

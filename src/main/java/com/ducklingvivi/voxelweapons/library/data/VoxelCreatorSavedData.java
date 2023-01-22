@@ -1,33 +1,32 @@
-package com.ducklingvivi.voxelweapons.library;
+package com.ducklingvivi.voxelweapons.library.data;
 
-import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
+import com.ducklingvivi.voxelweapons.library.voxelUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.server.ServerLifecycleHooks;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.util.HashMap;
-import java.util.UUID;
 
 public class VoxelCreatorSavedData extends SavedData {
 
+
+
+    private ItemStack itemStack;
     private ResourceKey<Level> levelOrigin;
     private BlockPos origin;
+    private BlockPos spawnPoint;
 
     private AABB boundingBox;
     private BlockPos levelOriginPos;
@@ -43,6 +42,8 @@ public class VoxelCreatorSavedData extends SavedData {
         boundingBox = new AABB(origin);
         levelOrigin = Level.OVERWORLD;
         levelOriginPos = null;
+        itemStack = ItemStack.EMPTY;
+        spawnPoint = new BlockPos(0,1,0);
     }
 
     public VoxelCreatorSavedData(CompoundTag tag) {
@@ -55,6 +56,8 @@ public class VoxelCreatorSavedData extends SavedData {
         }else{
             levelOriginPos = null;
         }
+        itemStack = ItemStack.of(tag.getCompound("ItemStack"));
+        spawnPoint = BlockPos.of(tag.getLong("LevelSpawn"));
     }
     @Override
     public @NotNull CompoundTag save(CompoundTag pCompoundTag) {
@@ -64,6 +67,8 @@ public class VoxelCreatorSavedData extends SavedData {
         if(levelOriginPos!= null){
             pCompoundTag.putLong("LevelOriginPos", levelOriginPos.asLong());
         }
+        pCompoundTag.putLong("LevelSpawn", spawnPoint.asLong());
+        pCompoundTag.put("ItemStack",itemStack.save(new CompoundTag()));
         return pCompoundTag;
     }
 
@@ -104,5 +109,23 @@ public class VoxelCreatorSavedData extends SavedData {
     }
     public BlockPos getLevelOriginPos() {
         return levelOriginPos;
+    }
+
+    public void setItemStack(ItemStack itemStack) {
+        this.itemStack = itemStack;
+        setDirty();
+    }
+
+    public ItemStack getItemStack(){
+        return itemStack;
+    }
+
+    public BlockPos getSpawnPoint() {
+        return spawnPoint;
+    }
+
+    public void setSpawnPoint(BlockPos spawnPoint) {
+        this.spawnPoint = spawnPoint;
+        setDirty();
     }
 }

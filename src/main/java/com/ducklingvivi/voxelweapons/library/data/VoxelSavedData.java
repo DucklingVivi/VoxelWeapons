@@ -1,24 +1,25 @@
-package com.ducklingvivi.voxelweapons.library;
+package com.ducklingvivi.voxelweapons.library.data;
 
 import com.ducklingvivi.voxelweapons.dimensions.DimensionUtils;
 import com.ducklingvivi.voxelweapons.dimensions.VoxelChunkGenerator;
+import com.ducklingvivi.voxelweapons.library.VoxelData;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
-import java.awt.event.WindowStateListener;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -59,6 +60,9 @@ public class VoxelSavedData extends SavedData {
             DimensionMap.put(uuid,integer);
         }
     }
+
+
+
     @Override
     public @NotNull CompoundTag save(CompoundTag tag) {
         ListTag listtag = new ListTag();
@@ -80,6 +84,7 @@ public class VoxelSavedData extends SavedData {
         tag.put("dimensionMap",listtag2);
         return tag;
     }
+
 
 
     public ServerLevel CreateDimension(UUID uuid, VoxelChunkGenerator.Settings settings){
@@ -137,5 +142,34 @@ public class VoxelSavedData extends SavedData {
         setDirty();
 
         return true;
+    }
+
+    public ServerLevel CreateDimensionFromData(UUID uuid) {
+        VoxelData data = getData(uuid);
+
+        //TODO GET THIS DATA FROM THE VOXERDATA ITSELF
+        AABB boundingbox = new AABB(new BlockPos(-18,1,-18));
+        boundingbox = boundingbox.minmax(new AABB(new BlockPos(18,36,18)));
+        BlockPos pos = new BlockPos(boundingbox.maxX+4.5f,1,boundingbox.getCenter().z);
+        BlockPos origin = data.offset;
+        VoxelChunkGenerator.Settings settings = new VoxelChunkGenerator.Settings(new VoxelChunkGenerator.FloorSettings((int)boundingbox.minX,(int)boundingbox.maxX,(int)boundingbox.minZ,(int)boundingbox.maxZ),pos.getX(),pos.getZ());
+        ServerLevel level = CreateDimension(uuid,settings);
+        for (Map.Entry<BlockPos, StructureTemplate.StructureBlockInfo> entry: data.devGetBlocks().entrySet()) {
+            BlockPos pos1 = entry.getKey();
+            pos1 = pos1.offset(origin);
+            StructureTemplate.StructureBlockInfo info = entry.getValue();
+            level.setBlockAndUpdate(pos1,info.state);
+            if(info.nbt != null){
+                BlockEntity toput = BlockEntity.loadStatic(pos1,info.state, info.nbt);
+                assert toput != null;
+                level.setBlockEntity(toput);
+            }
+
+        }
+        VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(level);
+        savedData.setOrigin(data.offset);
+        savedData.setBoundingBox(boundingbox);
+        savedData.setSpawnPoint(data.spawningpos);
+        return level;
     }
 }

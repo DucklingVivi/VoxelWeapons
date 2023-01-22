@@ -6,6 +6,7 @@ import com.ducklingvivi.voxelweapons.networking.WeaponPacket;
 import com.ducklingvivi.voxelweapons.networking.WeaponRequestPacket;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StreamTagVisitor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -36,5 +37,7 @@ public class VoxelItem extends Item {
             }
         });
     }
+
+
 
 }

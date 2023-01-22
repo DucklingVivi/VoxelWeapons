@@ -4,7 +4,8 @@ package com.ducklingvivi.voxelweapons.setup;
 
 import com.ducklingvivi.voxelweapons.commands.ModCommands;
 import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
-import com.ducklingvivi.voxelweapons.library.VoxelCreatorSavedData;
+import com.ducklingvivi.voxelweapons.library.EnderPearlHandler;
+import com.ducklingvivi.voxelweapons.library.data.VoxelCreatorSavedData;
 
 import com.ducklingvivi.voxelweapons.networking.DimensionCreatorPacket;
 import com.ducklingvivi.voxelweapons.networking.DimensionRegistryUpdatePacket;
@@ -22,13 +23,13 @@ import net.minecraft.world.item.Items;
 
 import net.minecraft.world.phys.AABB;
 
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -54,6 +55,7 @@ public class ModSetup {
         MinecraftForge.EVENT_BUS.addListener(ModSetup::onLogin);
         MinecraftForge.EVENT_BUS.addListener(ModSetup::onDimensionChangeServer);
         MinecraftForge.EVENT_BUS.addListener(ModSetup::onPlaceBlock);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH,EnderPearlHandler::onEnderPearlHit);
 
 
     }
@@ -77,7 +79,7 @@ public class ModSetup {
     }
 
     private static void onDimensionChangeServer(PlayerEvent.PlayerChangedDimensionEvent event){
-        if(event.getTo().location().getNamespace() == voxelweapons.MODID){
+        if(event.getTo().location().getNamespace().equals(voxelweapons.MODID)){
             MinecraftServer server =  ServerLifecycleHooks.getCurrentServer();
             ServerLevel level = server.getLevel(event.getTo());
             CompoundTag tag = VoxelCreatorSavedData.get(level).save(new CompoundTag());

@@ -1,23 +1,20 @@
 package com.ducklingvivi.voxelweapons.library;
 
 
-import com.ducklingvivi.voxelweapons.client.model.VoxelDataClient;
+import com.ducklingvivi.voxelweapons.library.data.VoxelCreatorSavedData;
+import com.ducklingvivi.voxelweapons.library.data.VoxelSavedData;
 import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.networking.WeaponPacket;
 import com.ducklingvivi.voxelweapons.setup.Registration;
-import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,7 +24,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.registries.GameData;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 
@@ -36,13 +32,16 @@ import java.util.*;
 public class VoxelData {
 
     public AABB bounds;
+    public AABB buildbounds;
     public BlockPos offset;
+    public BlockPos spawningpos;
     protected Map<BlockPos, StructureBlockInfo> blocks;
     protected  Map<BlockPos, FluidState> fluids;
 
     // Client
     public Map<BlockPos, ModelData> modelData;
     public Map<BlockPos, BlockEntity> presentTileEntities;
+
 
     public VoxelData(){
         blocks = new HashMap<>();
@@ -51,9 +50,12 @@ public class VoxelData {
         presentTileEntities = new HashMap<>();
         offset = new BlockPos(0,0,0);
         bounds = new AABB(BlockPos.ZERO);
+
+        buildbounds = new AABB(BlockPos.ZERO);
+        spawningpos = BlockPos.ZERO;
     }
 
-    public static void BuildWeapon(ServerLevel level, ServerPlayer player) {
+    public static ItemStack BuildWeapon(ServerLevel level) {
         Integer levelindex = Integer.valueOf(level.dimension().location().getPath());
         UUID uuid = VoxelSavedData.get().getDimensionUUID(levelindex);
 
@@ -67,45 +69,20 @@ public class VoxelData {
 
         VoxelData data = new VoxelData();
         data.offset = origin;
+        data.buildbounds = savedData.getBoundingBox();
+        data.spawningpos = savedData.getSpawnPoint();
         data.devAddRange(start,end, level);
         VoxelSavedData.get().addData(uuid,data);
         server.overworld().getDataStorage().save();
-        //TODO Maybe change this
         Messages.sendToAllPlayers(new WeaponPacket(uuid, new VoxelData(), WeaponPacket.WeaponOperation.DELETE));
-        ItemStack item = Registration.VOXELWEAPONITEM.get().getDefaultInstance();
+
+        ItemStack item = savedData.getItemStack();
+        if(item == null || item.isEmpty()) item = Registration.VOXELWEAPONITEM.get().getDefaultInstance();
+
         CompoundTag tag =  item.getOrCreateTag();
         tag.putUUID("voxelUUID", uuid);
         item.setTag(tag);
-
-
-
-        ResourceKey<Level> levelOriginKey = savedData.getLevelOrigin();
-        final ServerLevel destLevel;
-        BlockPos pos = null;
-        if(server.levelKeys().contains(levelOriginKey)){
-            destLevel = server.getLevel(levelOriginKey);
-            pos = savedData.getLevelOriginPos();
-        }else {
-            ResourceKey<Level> respawnKey = player.getRespawnDimension();
-            destLevel = server.getLevel(levelOriginKey);
-            pos = player.getRespawnPosition();
-        }
-
-        if (pos == null) {
-            assert destLevel != null;
-            pos = destLevel.getSharedSpawnPos();
-        }
-        assert destLevel != null;
-
-        player.teleportTo(destLevel, pos.getX()+0.5, pos.getY(), pos.getZ()+0.5, player.getRespawnAngle(), 0f);
-        boolean flag = player.addItem(item);
-        if(!flag){
-            ItemEntity entity = new ItemEntity(destLevel, pos.getX()+0.5,pos.getY(),pos.getZ()+0.5,item);
-            destLevel.addFreshEntity(entity);
-        }
-
-        VoxelSavedData.get().DeleteDimension(levelindex);
-
+        return item;
     }
 
     // TODO you're going to need a semi-persistent client-side structure to manage this anyway, so you define your packet so that it selects a specific area [at worst, a single block - you may need it if your blocks can be tile entities that may contain a large amount of data itself] to update
@@ -120,6 +97,8 @@ public class VoxelData {
 
         offset = NbtUtils.readBlockPos(nbt.getCompound("Offset"));
         bounds = voxelUtils.readAABB(nbt.getList("Bounds", Tag.TAG_FLOAT));
+        spawningpos = NbtUtils.readBlockPos(nbt.getCompound("SpawningPos"));
+        buildbounds = voxelUtils.readAABB(nbt.getList("BuildBounds", Tag.TAG_FLOAT));
     }
 
 
@@ -129,6 +108,9 @@ public class VoxelData {
         nbt.put("Offset", NbtUtils.writeBlockPos(offset));
         nbt.put("Blocks", writeBlocksCompound());
         nbt.put("Bounds", voxelUtils.writeAABB(bounds));
+        nbt.put("SpawningPos", NbtUtils.writeBlockPos(spawningpos));
+        nbt.put("BuildBounds", voxelUtils.writeAABB(buildbounds));
+
         return nbt;
     }
 
@@ -187,9 +169,12 @@ public class VoxelData {
         BlockPos localPos = pos.subtract(offset);
         StructureBlockInfo structureBlockInfo = new StructureBlockInfo(localPos, pair.state, pair.nbt);
 
-
+        if(blocks.size() == 0){
+            bounds = new AABB(localPos);
+        }
         if (blocks.put(localPos, structureBlockInfo) != null)
             return;
+
         bounds = bounds.minmax(new AABB(localPos));
     }
 
@@ -227,7 +212,6 @@ public class VoxelData {
 //            CompoundTag tag = listTag.getCompound(i);
 //            BlockPos pos = BlockPos.of(tag.getLong("Pos"));
 //            FluidState fluidState = voxelUtils.readFLuidState(voxelUtils.getLevel().holderLookup(Registries.FLUID),tag.getCompound("State"));
-//            //TODO FIX FLUIDSTATE
 //            fluids.put(pos, fluidState);
 //        }
 //

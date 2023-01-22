@@ -1,6 +1,6 @@
 package com.ducklingvivi.voxelweapons.networking;
 
-import com.ducklingvivi.voxelweapons.library.VoxelSavedData;
+import com.ducklingvivi.voxelweapons.library.data.VoxelSavedData;
 
 
 import net.minecraft.network.FriendlyByteBuf;

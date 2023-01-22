@@ -1,5 +1,6 @@
 package com.ducklingvivi.voxelweapons.client.render;
 
+import com.ducklingvivi.voxelweapons.client.data.VoxelCreatorClientData;
 import com.ducklingvivi.voxelweapons.setup.Registration;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;

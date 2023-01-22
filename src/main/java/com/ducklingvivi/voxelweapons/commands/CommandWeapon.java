@@ -1,11 +1,9 @@
 package com.ducklingvivi.voxelweapons.commands;
 
-import com.ducklingvivi.voxelweapons.dimensions.DimensionUtils;
 import com.ducklingvivi.voxelweapons.dimensions.VoxelChunkGenerator;
-import com.ducklingvivi.voxelweapons.library.VoxelCreatorSavedData;
+import com.ducklingvivi.voxelweapons.library.data.VoxelCreatorSavedData;
 import com.ducklingvivi.voxelweapons.library.VoxelData;
-import com.ducklingvivi.voxelweapons.library.VoxelFloorBorderBlock;
-import com.ducklingvivi.voxelweapons.library.VoxelSavedData;
+import com.ducklingvivi.voxelweapons.library.data.VoxelSavedData;
 import com.ducklingvivi.voxelweapons.setup.Registration;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -20,9 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.UUID;
 
@@ -46,19 +42,22 @@ public class CommandWeapon {
         @Override
         public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 
-            AABB boundingbox = new AABB(new BlockPos(-5,1,-5));
-            boundingbox = boundingbox.minmax(new AABB(new BlockPos(5,40,5)));
+            AABB boundingbox = new AABB(new BlockPos(-18,1,-18));
+            boundingbox = boundingbox.minmax(new AABB(new BlockPos(18,36,18)));
             BlockPos pos = new BlockPos(boundingbox.maxX+4.5f,1,boundingbox.getCenter().z);
             VoxelChunkGenerator.Settings settings = new VoxelChunkGenerator.Settings(new VoxelChunkGenerator.FloorSettings((int)boundingbox.minX,(int)boundingbox.maxX,(int)boundingbox.minZ,(int)boundingbox.maxZ),pos.getX(),pos.getZ());
             UUID uuid = UUID.randomUUID();
             ServerLevel level = VoxelSavedData.get().CreateDimension(uuid,settings);
             ServerPlayer player = context.getSource().getPlayer();
-            VoxelCreatorSavedData.get(level).setLevelOrigin(context.getSource().getLevel().dimension());
-            VoxelCreatorSavedData.get(level).setBoundingBox(boundingbox);
-            VoxelCreatorSavedData.get(level).setLevelOriginPos(player.blockPosition());
+            VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(level);
+            savedData.setOrigin(new BlockPos(0,0,0));
+            savedData.setLevelOrigin(context.getSource().getLevel().dimension());
+            savedData.setBoundingBox(boundingbox);
+            savedData.setLevelOriginPos(player.blockPosition());
+            savedData.setSpawnPoint(pos);
             level.getDataStorage().save();
-            
-            
+
+
             
             player.teleportTo(level, pos.getCenter().x,pos.getY(),pos.getCenter().z,90,0f);
 
