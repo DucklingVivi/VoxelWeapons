@@ -38,13 +38,10 @@ import java.util.function.Function;
 
 public class WeaponBakedModel implements IDynamicBakedModel {
 
-    public final ModelState modelState;
     private final Function<Material, TextureAtlasSprite> spriteGetter;
-    public static final ModelResourceLocation modelResourceLocation
-            = new ModelResourceLocation(Registration.VOXELWEAPONITEM.getId(), "inventory");
+
 
     public WeaponBakedModel(){
-        this.modelState = new ModelState(){};
         this.spriteGetter = material -> material.sprite();
     }
 

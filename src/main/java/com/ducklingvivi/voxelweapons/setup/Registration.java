@@ -32,6 +32,8 @@ public class Registration {
 
 
     public static final RegistryObject<VoxelItem> VOXELWEAPONITEM = ITEMS.register("voxelweapon", VoxelItem::new);
+    public static final RegistryObject<VoxelCatalystItem> VOXELCATALYSTITEM = ITEMS.register("voxelcatalyst", VoxelCatalystItem::new);
+
     public static final RegistryObject<Block> VOXELFLOORBLOCK = BLOCKS.register("voxel_floor", ()-> new VoxelFloorBlock(VoxelFloorBlock.DEFAULTPROPERTIES));
     public static final RegistryObject<Block> VOXELFLOORBORDERBLOCK = BLOCKS.register("voxel_floor_border", ()-> new VoxelFloorBorderBlock(VoxelFloorBlock.DEFAULTPROPERTIES));
 

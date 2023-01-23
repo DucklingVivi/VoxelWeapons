@@ -27,6 +27,8 @@ public class VoxelItemModels extends ItemModelProvider {
     protected void registerModels() {
         ItemModelBuilder builder =
                 getBuilder(Registration.VOXELWEAPONITEM.getId().getPath());
+        ItemModelBuilder builder2 =
+                getBuilder(Registration.VOXELCATALYSTITEM.getId().getPath());
     }
 
 }

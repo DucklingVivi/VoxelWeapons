@@ -41,15 +41,19 @@ public class RenderTypes extends RenderType {
                     .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                     .createCompositeState(true));
 
-    public static final RenderType FLUID = create(voxelweapons.MODID + ":fluid",
-            DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS,2097152,false,false,
+    public static final RenderType HYPERCUBE = create(voxelweapons.MODID + ":hypercube",
+            DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS,
+            2097152, true, true,
             CompositeState.builder()
                     .setLightmapState(LIGHTMAP)
-                    .setShaderState(RenderStateShard.RENDERTYPE_TRANSLUCENT_SHADER)
+                    .setShaderState(RenderStateShard.RENDERTYPE_CUTOUT_MIPPED_SHADER)
                     .setTextureState(BLOCK_SHEET_MIPPED)
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setOutputState(RenderStateShard.ITEM_ENTITY_TARGET)
-                    .setWriteMaskState(COLOR_DEPTH_WRITE)
-                    .setOutputState(TRANSLUCENT_TARGET)
+                    .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    .setLayeringState(POLYGON_OFFSET_LAYERING)
+                    .setOutputState(RenderStateShard.MAIN_TARGET)
+                    .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                     .createCompositeState(true));
+
 }

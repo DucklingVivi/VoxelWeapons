@@ -1,6 +1,7 @@
 package com.ducklingvivi.voxelweapons.library;
 
 import com.ducklingvivi.voxelweapons.dimensions.DimensionUtils;
+import com.ducklingvivi.voxelweapons.dimensions.VoxelChunkGenerator;
 import com.ducklingvivi.voxelweapons.library.data.VoxelCreatorSavedData;
 import com.ducklingvivi.voxelweapons.library.data.VoxelSavedData;
 import com.ducklingvivi.voxelweapons.setup.Registration;
@@ -47,6 +48,31 @@ public class EnderPearlHandler {
                         thrownEnderpearl.discard();
                         return;
                     }
+                } else if (entity instanceof ItemEntity itemEntity && itemEntity.getItem().is(Registration.VOXELCATALYSTITEM.get())) {
+
+                    UUID uuid = UUID.randomUUID();
+
+
+
+
+                    AABB boundingbox = new AABB(new BlockPos(-10,1,-10));
+                    boundingbox = boundingbox.minmax(new AABB(new BlockPos(10,40,10)));
+                    BlockPos pos = new BlockPos(boundingbox.maxX+4.5f,1,boundingbox.getCenter().z);
+                    VoxelChunkGenerator.Settings settings = new VoxelChunkGenerator.Settings(new VoxelChunkGenerator.FloorSettings((int)boundingbox.minX,(int)boundingbox.maxX,(int)boundingbox.minZ,(int)boundingbox.maxZ),pos.getX(),pos.getZ());
+                    ServerLevel newLevel = VoxelSavedData.get().CreateDimension(uuid,settings);
+                    VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(newLevel);
+                    savedData.setOrigin(new BlockPos(0,0,0));
+                    savedData.setLevelOrigin(player.getLevel().dimension());
+                    savedData.setBoundingBox(boundingbox);
+                    savedData.setLevelOriginPos(player.blockPosition());
+                    savedData.setSpawnPoint(pos);
+                    newLevel.getDataStorage().save();
+
+
+                    itemEntity.discard();
+                    thrownEnderpearl.discard();
+                    player.teleportTo(newLevel, pos.getCenter().x,pos.getY(),pos.getCenter().z,90,0f);
+                    return;
                 }
             }
 

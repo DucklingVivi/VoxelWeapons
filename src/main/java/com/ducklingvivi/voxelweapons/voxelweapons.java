@@ -86,9 +86,11 @@ public class voxelweapons {
         @SubscribeEvent
         public static void onModelBakeEvent(ModelEvent.ModifyBakingResult event){
             voxelweapons.LOGGER.info("Entered Bakery");
-            ModelResourceLocation itemModelResourceLocation = WeaponBakedModel.modelResourceLocation;
+            ModelResourceLocation itemModelResourceLocation = new ModelResourceLocation(Registration.VOXELWEAPONITEM.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation1 = new ModelResourceLocation(Registration.VOXELCATALYSTITEM.getId(), "inventory");
             WeaponBakedModel customModel = new WeaponBakedModel();
             event.getModels().replace(itemModelResourceLocation, customModel);
+            event.getModels().replace(itemModelResourceLocation1, customModel);
         }
 
     }
