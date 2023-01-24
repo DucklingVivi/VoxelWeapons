@@ -1,16 +1,17 @@
 package com.ducklingvivi.voxelweapons.library;
 
 import com.ducklingvivi.voxelweapons.client.model.VoxelWithoutLevelRenderer;
+import com.ducklingvivi.voxelweapons.client.render.ItemTooltip;
+import com.mojang.datafixers.util.Either;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
@@ -37,22 +38,12 @@ public class VoxelCatalystItem extends Item{
         });
     }
 
-    @Override
-    public @NotNull Component getName(ItemStack pStack) {
-        return Component.literal("Voxel Catalyst");
-    }
 
-    @Override
-    public @NotNull Rarity getRarity(ItemStack pStack) {
-        return Rarity.UNCOMMON;
-    }
 
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
-
-        pTooltipComponents.add(Component.literal("Throw an ").withStyle(ChatFormatting.GRAY).append(Component.literal("[Ender Pearl]").withStyle(ChatFormatting.DARK_AQUA)).append(Component.literal(" while dropped on ground to construct a new weapon").withStyle(ChatFormatting.GRAY)));
-        pTooltipComponents.add(Component.empty());
-        pTooltipComponents.add(Component.literal("A gateway to infinite creation").withStyle(ChatFormatting.ITALIC).withStyle((style -> style.withColor(TextColor.parseColor("#ff8b3d")))));
+        pTooltipComponents.add(Component.translatable("item.voxelweapons.voxelcatalyst.info"));
+        pTooltipComponents.add(Component.translatable("item.voxelweapons.voxelcatalyst.flavor").withStyle(ChatFormatting.ITALIC).withStyle((style -> style.withColor(TextColor.parseColor("#ff8b3d")))));
         super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
     }
 }

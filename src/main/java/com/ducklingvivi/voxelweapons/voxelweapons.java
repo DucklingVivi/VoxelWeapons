@@ -1,16 +1,24 @@
 package com.ducklingvivi.voxelweapons;
 
 import com.ducklingvivi.voxelweapons.client.model.WeaponBakedModel;
+import com.ducklingvivi.voxelweapons.client.render.ItemTooltip;
+import com.ducklingvivi.voxelweapons.library.VoxelCatalystItem;
 import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.setup.ModSetup;
 import com.ducklingvivi.voxelweapons.setup.ModSetupClient;
 import com.ducklingvivi.voxelweapons.setup.Registration;
+import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -41,7 +49,7 @@ public class voxelweapons {
         Messages.register();
 
         Registration.init();
-
+        ItemTooltip.registerFactory();
 
         // Register ourselves for server and other game events we are interested in
 
@@ -65,8 +73,12 @@ public class voxelweapons {
         LOGGER.info("HELLO from server starting");
     }
 
-
-
+    @SubscribeEvent
+    public static void setTooltip(ItemTooltipEvent event){
+        if(event.getItemStack().is(Registration.VOXELCATALYSTITEM.get())){
+            event.getItemStack();
+        }
+    }
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
@@ -79,10 +91,6 @@ public class voxelweapons {
         }
 
 
-        @SubscribeEvent
-        public static void testing(EntityRenderersEvent.RegisterRenderers event){
-
-        }
         @SubscribeEvent
         public static void onModelBakeEvent(ModelEvent.ModifyBakingResult event){
             voxelweapons.LOGGER.info("Entered Bakery");

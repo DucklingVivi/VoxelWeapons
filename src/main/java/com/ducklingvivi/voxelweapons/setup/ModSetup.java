@@ -2,6 +2,7 @@ package com.ducklingvivi.voxelweapons.setup;
 
 
 
+import com.ducklingvivi.voxelweapons.client.render.ItemTooltip;
 import com.ducklingvivi.voxelweapons.commands.ModCommands;
 import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
 import com.ducklingvivi.voxelweapons.library.EnderPearlHandler;
@@ -13,19 +14,30 @@ import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.google.common.collect.ImmutableSet;
 
+import com.mojang.datafixers.util.Either;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import net.minecraft.world.phys.AABB;
 
+import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -36,6 +48,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import java.util.Formattable;
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = voxelweapons.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -56,12 +69,18 @@ public class ModSetup {
         MinecraftForge.EVENT_BUS.addListener(ModSetup::onDimensionChangeServer);
         MinecraftForge.EVENT_BUS.addListener(ModSetup::onPlaceBlock);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH,EnderPearlHandler::onEnderPearlHit);
-
-
+        MinecraftForge.EVENT_BUS.addListener(ModSetup::onApplyTooltips);
     }
 
 
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onGatherComponentsEvent(RenderTooltipEvent.GatherComponents event)
+    {
+
+    }
+    private static void onApplyTooltips(ItemTooltipEvent event){
+    }
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event){
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         ServerPlayer player = server.getPlayerList().getPlayer(event.getEntity().getUUID());

@@ -1,0 +1,7 @@
+{
+  "item.voxelweapons.voxelweapon": "Voxel Weapon",
+  "item.voxelweapons.voxelcatalyst": "Voxel Catalyst",
+
+  "item.voxelweapons.voxelcatalyst.info":"§7Throw an §3[Ender Pearl]§7 while dropped on ground to construct a new weapon",
+  "item.voxelweapons.voxelcatalyst.flavor":"A gateway to infinite creation"
+}
