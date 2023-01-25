@@ -97,8 +97,10 @@ public class VoxelSavedData extends SavedData {
                 flag = true;
             }
         }
+
         DimensionMap.put(uuid, x);
         setDirty(true);
+
         return DimensionUtils.createWorld(ServerLifecycleHooks.getCurrentServer(),x.toString(),settings);
     }
     public void DeleteDimension(UUID uuid){

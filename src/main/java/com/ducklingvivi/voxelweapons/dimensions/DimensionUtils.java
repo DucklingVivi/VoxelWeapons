@@ -96,7 +96,9 @@ public class DimensionUtils {
 
         Holder<DimensionType> type = registryAccess.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(Dimensions.VOXELDIMENSIONTYPE);
 
-        ServerLevel result = getOrCreateLevel(minecraftServer, key, (server, registryKey) -> {
+        @SuppressWarnings("deprecation") final Map<ResourceKey<Level>, ServerLevel> map = minecraftServer.forgeGetWorldMap();
+
+        ServerLevel result = createAndRegisterLevel(minecraftServer, map,key, (server, registryKey) -> {
             ChunkGenerator generator = new VoxelChunkGenerator(registryAccess.registryOrThrow(Registries.BIOME).asLookup(), settings);
             return new LevelStem(type, generator);
         });

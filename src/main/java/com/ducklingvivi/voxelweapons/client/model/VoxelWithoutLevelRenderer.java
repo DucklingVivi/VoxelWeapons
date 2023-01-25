@@ -353,25 +353,26 @@ public class VoxelWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer {
         poseStack.translate(0.5f,0.5f,0.5f);
         BlockPos pos = data.offset;
 
+
         Matrix4f rotationMatrix = new Matrix4f();
         rotationMatrix.rotation((float) -(Math.PI/4),1,0,0);
-
         AABB boundingBox = data.bounds;
         Vector4f sizeVector = new Vector4f((float) boundingBox.getXsize(), (float) boundingBox.getYsize(), (float) boundingBox.getZsize(),1f);
         sizeVector = rotationMatrix.transform(sizeVector);
 
         double largestsize = Math.max(Math.max(sizeVector.x,sizeVector.y),sizeVector.z);
         float scale = (float) ( 1 / (largestsize*0.1));
+
         poseStack.scale(scale,scale,scale);
 
+        poseStack.translate(-0.1f,-0.1f,-0.1f);
 
-        poseStack.translate(pos.getX(),pos.getY(),pos.getZ());
+
         rotationMatrix.rotation((float) -(Math.PI/2), 0,1,0);
         poseStack.mulPoseMatrix(rotationMatrix);
         rotationMatrix.rotation((float) -(Math.PI/4), 1,0,0);
         poseStack.mulPoseMatrix(rotationMatrix);
 
-        //poseStack.translate(0,-scale,0);
         poseStack.translate(-0.5f,-0.5f,-0.5f);
     }
     public ByteBuffer cloneBytes(BufferBuilder builder){
