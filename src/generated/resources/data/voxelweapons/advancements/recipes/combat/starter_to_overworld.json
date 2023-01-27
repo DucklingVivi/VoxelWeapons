@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "voxelweapons:starter_to_overworld"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "starter_to_overworld": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "voxelweapons:voxel_weapon_starter"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "starter_to_overworld",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "voxelweapons:starter_to_overworld"
+    ]
+  }
+}

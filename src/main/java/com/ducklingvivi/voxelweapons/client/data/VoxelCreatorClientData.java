@@ -1,8 +1,8 @@
 package com.ducklingvivi.voxelweapons.client.data;
 
 import com.ducklingvivi.voxelweapons.client.render.VoxelControllerRenderer;
+import com.ducklingvivi.voxelweapons.library.VoxelTier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.AABB;
 
 public class VoxelCreatorClientData {
 
@@ -13,12 +13,14 @@ public class VoxelCreatorClientData {
     public boolean isOriginVisible;
     public int exitTimer = 0;
     private BlockPos origin;
-    private AABB boundingBox;
-    public VoxelCreatorClientData(){
+    private VoxelTier tier;
+
+    public VoxelCreatorClientData() {
         origin = BlockPos.ZERO;
-        boundingBox = new AABB(origin);
-        currentMenuItem=null;
-        isWireFrameVisible=false;
+        tier = VoxelTier.STARTER;
+        currentMenuItem = null;
+        isWireFrameVisible = false;
+
     }
 
     public void setOrigin(BlockPos origin) {
@@ -29,11 +31,11 @@ public class VoxelCreatorClientData {
         return origin;
     }
 
-    public AABB getBoundingBox() {
-        return boundingBox;
+    public VoxelTier getTier() {
+        return tier;
     }
 
-    public void setBoundingBox(AABB boundingBox) {
-        this.boundingBox = boundingBox;
+    public void setTier(VoxelTier tier){
+        this.tier = tier;
     }
 }

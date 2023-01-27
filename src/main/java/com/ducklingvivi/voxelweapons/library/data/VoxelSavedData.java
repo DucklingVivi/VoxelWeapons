@@ -1,8 +1,10 @@
 package com.ducklingvivi.voxelweapons.library.data;
 
+import com.ducklingvivi.voxelweapons.client.render.RenderTypes;
 import com.ducklingvivi.voxelweapons.dimensions.DimensionUtils;
 import com.ducklingvivi.voxelweapons.dimensions.VoxelChunkGenerator;
 import com.ducklingvivi.voxelweapons.library.VoxelData;
+import com.ducklingvivi.voxelweapons.library.VoxelTier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -90,14 +92,13 @@ public class VoxelSavedData extends SavedData {
     public ServerLevel CreateDimension(UUID uuid, VoxelChunkGenerator.Settings settings){
         boolean flag = false;
         Integer x = 0;
-        while(!flag){
-            if(DimensionMap.containsValue(x)){
+        while(!flag) {
+            if (DimensionMap.containsValue(x)) {
                 x++;
-            }else{
+            } else {
                 flag = true;
             }
         }
-
         DimensionMap.put(uuid, x);
         setDirty(true);
 
@@ -146,12 +147,11 @@ public class VoxelSavedData extends SavedData {
         return true;
     }
 
-    public ServerLevel CreateDimensionFromData(UUID uuid) {
+    public ServerLevel CreateDimensionFromData(UUID uuid, VoxelTier tier) {
         VoxelData data = getData(uuid);
 
         //TODO GET THIS DATA FROM THE VOXERDATA ITSELF
-        AABB boundingbox = new AABB(new BlockPos(-18,1,-18));
-        boundingbox = boundingbox.minmax(new AABB(new BlockPos(18,36,18)));
+        AABB boundingbox = tier.boundingBox;
         BlockPos pos = new BlockPos(boundingbox.maxX+4.5f,1,boundingbox.getCenter().z);
         BlockPos origin = data.offset;
         VoxelChunkGenerator.Settings settings = new VoxelChunkGenerator.Settings(new VoxelChunkGenerator.FloorSettings((int)boundingbox.minX,(int)boundingbox.maxX,(int)boundingbox.minZ,(int)boundingbox.maxZ),pos.getX(),pos.getZ());
@@ -170,8 +170,7 @@ public class VoxelSavedData extends SavedData {
         }
         VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(level);
         savedData.setOrigin(data.offset);
-        savedData.setBoundingBox(boundingbox);
-        savedData.setSpawnPoint(data.spawningpos);
+        savedData.setTier(tier);
         return level;
     }
 }

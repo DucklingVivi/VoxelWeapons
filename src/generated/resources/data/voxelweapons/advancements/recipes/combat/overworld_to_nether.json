@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "voxelweapons:overworld_to_nether"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "overworld_to_nether": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "voxelweapons:voxel_weapon_overworld"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "overworld_to_nether",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "voxelweapons:overworld_to_nether"
+    ]
+  }
+}

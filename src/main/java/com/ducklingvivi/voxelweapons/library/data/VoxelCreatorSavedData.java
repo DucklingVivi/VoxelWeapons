@@ -1,5 +1,7 @@
 package com.ducklingvivi.voxelweapons.library.data;
 
+import com.ducklingvivi.voxelweapons.library.VoxelData;
+import com.ducklingvivi.voxelweapons.library.VoxelTier;
 import com.ducklingvivi.voxelweapons.library.voxelUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -26,9 +28,7 @@ public class VoxelCreatorSavedData extends SavedData {
     private ItemStack itemStack;
     private ResourceKey<Level> levelOrigin;
     private BlockPos origin;
-    private BlockPos spawnPoint;
-
-    private AABB boundingBox;
+    private VoxelTier tier;
     private BlockPos levelOriginPos;
 
     @Nonnull
@@ -39,16 +39,16 @@ public class VoxelCreatorSavedData extends SavedData {
 
     public VoxelCreatorSavedData(){
         origin = new BlockPos(0,0,0);
-        boundingBox = new AABB(origin);
+
         levelOrigin = Level.OVERWORLD;
         levelOriginPos = null;
         itemStack = ItemStack.EMPTY;
-        spawnPoint = new BlockPos(0,1,0);
+        tier = VoxelTier.STARTER;
     }
 
     public VoxelCreatorSavedData(CompoundTag tag) {
         origin = NbtUtils.readBlockPos(tag.getCompound("Origin"));
-        boundingBox = voxelUtils.readAABB(tag.getList("BoundingBox",Tag.TAG_FLOAT));
+        tier = VoxelTier.valueOf(tag.getString("Tier"));
         if(tag.contains("LevelOrigin")){levelOrigin = ResourceKey.create(Registries.DIMENSION,new ResourceLocation(tag.getString("LevelOrigin")));
         }else{levelOrigin = Level.OVERWORLD;}
         if(tag.contains("LevelOriginPos")){
@@ -57,17 +57,15 @@ public class VoxelCreatorSavedData extends SavedData {
             levelOriginPos = null;
         }
         itemStack = ItemStack.of(tag.getCompound("ItemStack"));
-        spawnPoint = BlockPos.of(tag.getLong("LevelSpawn"));
     }
     @Override
     public @NotNull CompoundTag save(CompoundTag pCompoundTag) {
         pCompoundTag.put("Origin", NbtUtils.writeBlockPos(origin));
-        pCompoundTag.put("BoundingBox", voxelUtils.writeAABB(boundingBox));
+        pCompoundTag.putString("Tier", tier.getSerializedName());
         pCompoundTag.putString("LevelOrigin", levelOrigin.location().toString());
         if(levelOriginPos!= null){
             pCompoundTag.putLong("LevelOriginPos", levelOriginPos.asLong());
         }
-        pCompoundTag.putLong("LevelSpawn", spawnPoint.asLong());
         pCompoundTag.put("ItemStack",itemStack.save(new CompoundTag()));
         return pCompoundTag;
     }
@@ -87,11 +85,11 @@ public class VoxelCreatorSavedData extends SavedData {
         return this.origin;
     }
 
-    public AABB getBoundingBox() {
-        return boundingBox;
+    public VoxelTier getTier() {
+        return tier;
     }
-    public void setBoundingBox(AABB boundingBox){
-        this.boundingBox = boundingBox;
+    public void setTier(VoxelTier tier){
+        this.tier = tier;
         setDirty(true);
     }
 
@@ -120,12 +118,4 @@ public class VoxelCreatorSavedData extends SavedData {
         return itemStack;
     }
 
-    public BlockPos getSpawnPoint() {
-        return spawnPoint;
-    }
-
-    public void setSpawnPoint(BlockPos spawnPoint) {
-        this.spawnPoint = spawnPoint;
-        setDirty();
-    }
 }

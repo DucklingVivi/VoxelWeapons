@@ -25,10 +25,28 @@ public class VoxelItemModels extends ItemModelProvider {
     }
     @Override
     protected void registerModels() {
-        ItemModelBuilder builder =
-                getBuilder(Registration.VOXELWEAPONITEM.getId().getPath());
-        ItemModelBuilder builder2 =
-                getBuilder(Registration.VOXELCATALYSTITEM.getId().getPath());
+        ItemModelBuilder builder00 =
+                getBuilder(Registration.VOXEL_WEAPON_STARTER.getId().getPath());
+        ItemModelBuilder builder01 =
+                getBuilder(Registration.VOXEL_WEAPON_OVERWORLD.getId().getPath());
+        ItemModelBuilder builder02 =
+                getBuilder(Registration.VOXEL_WEAPON_NETHER.getId().getPath());
+        ItemModelBuilder builder03 =
+                getBuilder(Registration.VOXEL_WEAPON_END.getId().getPath());
+        ItemModelBuilder builder04 =
+                getBuilder(Registration.VOXEL_WEAPON_BOSS.getId().getPath());
+
+        ItemModelBuilder builder10 =
+                getBuilder(Registration.VOXEL_CATALYST_STARTER.getId().getPath());
+        ItemModelBuilder builder11 =
+                getBuilder(Registration.VOXEL_CATALYST_OVERWORLD.getId().getPath());
+        ItemModelBuilder builder12 =
+                getBuilder(Registration.VOXEL_CATALYST_NETHER.getId().getPath());
+        ItemModelBuilder builder13 =
+                getBuilder(Registration.VOXEL_CATALYST_END.getId().getPath());
+        ItemModelBuilder builder14 =
+                getBuilder(Registration.VOXEL_CATALYST_BOSS.getId().getPath());
+
     }
 
 }

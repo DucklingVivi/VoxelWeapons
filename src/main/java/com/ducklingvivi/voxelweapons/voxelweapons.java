@@ -75,7 +75,7 @@ public class voxelweapons {
 
     @SubscribeEvent
     public static void setTooltip(ItemTooltipEvent event){
-        if(event.getItemStack().is(Registration.VOXELCATALYSTITEM.get())){
+        if(event.getItemStack().is(Registration.VOXEL_CATALYST_PREDICATE)){
             event.getItemStack();
         }
     }
@@ -94,11 +94,32 @@ public class voxelweapons {
         @SubscribeEvent
         public static void onModelBakeEvent(ModelEvent.ModifyBakingResult event){
             voxelweapons.LOGGER.info("Entered Bakery");
-            ModelResourceLocation itemModelResourceLocation = new ModelResourceLocation(Registration.VOXELWEAPONITEM.getId(), "inventory");
-            ModelResourceLocation itemModelResourceLocation1 = new ModelResourceLocation(Registration.VOXELCATALYSTITEM.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation00 = new ModelResourceLocation(Registration.VOXEL_WEAPON_STARTER.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation01 = new ModelResourceLocation(Registration.VOXEL_WEAPON_OVERWORLD.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation02 = new ModelResourceLocation(Registration.VOXEL_WEAPON_NETHER.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation03 = new ModelResourceLocation(Registration.VOXEL_WEAPON_END.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation04 = new ModelResourceLocation(Registration.VOXEL_WEAPON_BOSS.getId(), "inventory");
+
+            ModelResourceLocation itemModelResourceLocation10 = new ModelResourceLocation(Registration.VOXEL_CATALYST_STARTER.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation11 = new ModelResourceLocation(Registration.VOXEL_CATALYST_OVERWORLD.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation12 = new ModelResourceLocation(Registration.VOXEL_CATALYST_NETHER.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation13 = new ModelResourceLocation(Registration.VOXEL_CATALYST_END.getId(), "inventory");
+            ModelResourceLocation itemModelResourceLocation14 = new ModelResourceLocation(Registration.VOXEL_CATALYST_BOSS.getId(), "inventory");
+
+
             WeaponBakedModel customModel = new WeaponBakedModel();
-            event.getModels().replace(itemModelResourceLocation, customModel);
-            event.getModels().replace(itemModelResourceLocation1, customModel);
+            event.getModels().replace(itemModelResourceLocation00, customModel);
+            event.getModels().replace(itemModelResourceLocation01, customModel);
+            event.getModels().replace(itemModelResourceLocation02, customModel);
+            event.getModels().replace(itemModelResourceLocation03, customModel);
+            event.getModels().replace(itemModelResourceLocation04, customModel);
+            event.getModels().replace(itemModelResourceLocation10, customModel);
+            event.getModels().replace(itemModelResourceLocation11, customModel);
+            event.getModels().replace(itemModelResourceLocation12, customModel);
+            event.getModels().replace(itemModelResourceLocation13, customModel);
+            event.getModels().replace(itemModelResourceLocation14, customModel);
+
+
         }
 
     }

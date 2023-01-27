@@ -4,22 +4,34 @@ package com.ducklingvivi.voxelweapons.setup;
 import com.ducklingvivi.voxelweapons.client.data.VoxelCreatorClientData;
 import com.ducklingvivi.voxelweapons.client.data.VoxelDataClient;
 import com.ducklingvivi.voxelweapons.client.render.*;
+import com.ducklingvivi.voxelweapons.library.VoxelData;
+import com.ducklingvivi.voxelweapons.library.VoxelTier;
+import com.ducklingvivi.voxelweapons.library.VoxelWeaponItem;
+import com.ducklingvivi.voxelweapons.library.data.VoxelSavedData;
 import com.ducklingvivi.voxelweapons.networking.DimensionBuildPacket;
 import com.ducklingvivi.voxelweapons.networking.Messages;
 import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.SmithingScreen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+
+import javax.swing.text.Style;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = voxelweapons.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModSetupClient {
@@ -30,11 +42,26 @@ public class ModSetupClient {
         MinecraftForge.EVENT_BUS.addListener(ModSetupClient::tickEvent);
         MinecraftForge.EVENT_BUS.addListener(ModSetupClient::renderEvent);
         MinecraftForge.EVENT_BUS.addListener(ModSetupClient::LeftClickEmptyEvent);
-
+        MinecraftForge.EVENT_BUS.addListener(ModSetupClient::onApplyTooltips);
         event.enqueueWork(() -> {
             VoxelControllerRenderer.register();
         });
 
+    }
+
+
+    public static void onApplyTooltips(ItemTooltipEvent event){
+        ItemStack item = event.getItemStack();
+//        if(item.is(Registration.VOXELCATALYSTITEM.get())){
+//
+//        }
+        if(item.getItem() instanceof VoxelWeaponItem voxelWeaponItem){
+            CompoundTag tag = item.getOrCreateTag();
+            if(!tag.hasUUID("voxelUUID")) return;
+            final UUID uuid = tag.getUUID("voxelUUID");
+            final VoxelData data = VoxelSavedData.get().getData(uuid);
+            event.getToolTip().set(1, Component.translatable("item.voxelweapons.tier").append(": ").append(Component.translatable(voxelWeaponItem.tier.languageKey).withStyle(style -> style.withColor(voxelWeaponItem.tier.color))));
+        }
     }
 
     private static void renderEvent(RenderLevelStageEvent event) {
@@ -56,7 +83,7 @@ public class ModSetupClient {
                 }
 
                 if (VoxelCreatorClientData.INSTANCE.isWireFrameVisible) {
-                    AABB aabb = VoxelCreatorClientData.INSTANCE.getBoundingBox();
+                    AABB aabb = VoxelCreatorClientData.INSTANCE.getTier().boundingBox;
                     LineBoxRenderer.render(tesselator, poseStack, cam, aabb);
 
                 }

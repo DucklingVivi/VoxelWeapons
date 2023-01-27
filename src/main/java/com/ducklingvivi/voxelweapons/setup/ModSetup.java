@@ -6,8 +6,11 @@ import com.ducklingvivi.voxelweapons.client.render.ItemTooltip;
 import com.ducklingvivi.voxelweapons.commands.ModCommands;
 import com.ducklingvivi.voxelweapons.dimensions.Dimensions;
 import com.ducklingvivi.voxelweapons.library.EnderPearlHandler;
+import com.ducklingvivi.voxelweapons.library.VoxelData;
+import com.ducklingvivi.voxelweapons.library.VoxelTier;
 import com.ducklingvivi.voxelweapons.library.data.VoxelCreatorSavedData;
 
+import com.ducklingvivi.voxelweapons.library.data.VoxelSavedData;
 import com.ducklingvivi.voxelweapons.networking.DimensionCreatorPacket;
 import com.ducklingvivi.voxelweapons.networking.DimensionRegistryUpdatePacket;
 import com.ducklingvivi.voxelweapons.networking.Messages;
@@ -15,6 +18,7 @@ import com.ducklingvivi.voxelweapons.voxelweapons;
 import com.google.common.collect.ImmutableSet;
 
 import com.mojang.datafixers.util.Either;
+import net.minecraft.core.Position;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -23,6 +27,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -50,6 +56,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Formattable;
 import java.util.Objects;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = voxelweapons.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModSetup {
@@ -68,8 +75,9 @@ public class ModSetup {
         MinecraftForge.EVENT_BUS.addListener(ModSetup::onLogin);
         MinecraftForge.EVENT_BUS.addListener(ModSetup::onDimensionChangeServer);
         MinecraftForge.EVENT_BUS.addListener(ModSetup::onPlaceBlock);
+        MinecraftForge.EVENT_BUS.addListener(ModSetup::onItemCraft);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH,EnderPearlHandler::onEnderPearlHit);
-        MinecraftForge.EVENT_BUS.addListener(ModSetup::onApplyTooltips);
+
     }
 
 
@@ -79,7 +87,17 @@ public class ModSetup {
     {
 
     }
-    private static void onApplyTooltips(ItemTooltipEvent event){
+
+    private static void onItemCraft(PlayerEvent.ItemCraftedEvent event){
+        if(event.getCrafting().is(Registration.VOXEL_CATALYST_STARTER.get())){
+            Player entity = event.getEntity();
+            Position pos = entity.position();
+            if(entity.canTakeItem(Items.ENDER_PEARL.getDefaultInstance())){
+                entity.addItem(Items.ENDER_PEARL.getDefaultInstance());
+            }else{
+                entity.getLevel().addFreshEntity(new ItemEntity(entity.level,pos.x(),pos.y(),pos.z(), Items.ENDER_PEARL.getDefaultInstance()));
+            }
+        }
     }
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event){
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -127,7 +145,7 @@ public class ModSetup {
     private static void onPlaceBlock(BlockEvent.EntityPlaceEvent event){
         Entity entity = event.getEntity();
         if(entity !=null && entity.level.dimension().location().getNamespace().equals(voxelweapons.MODID)){
-            AABB boundingBox = VoxelCreatorSavedData.get(Objects.requireNonNull(ServerLifecycleHooks.getCurrentServer().getLevel(entity.level.dimension()))).getBoundingBox();
+            AABB boundingBox = VoxelCreatorSavedData.get(Objects.requireNonNull(ServerLifecycleHooks.getCurrentServer().getLevel(entity.level.dimension()))).getTier().boundingBox;
             if(!boundingBox.contains(event.getPos().getCenter())){
                 event.setCanceled(true);
             }

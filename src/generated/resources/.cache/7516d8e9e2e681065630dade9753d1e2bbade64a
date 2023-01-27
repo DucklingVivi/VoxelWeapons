@@ -1,3 +1,11 @@
-// 1.19.3	2023-01-22T14:21:55.2713047	Item Models: voxelweapons
-bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxelcatalyst.json
-bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxelweapon.json
+// 1.19.3	2023-01-26T20:29:24.4626728	Item Models: voxelweapons
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_catalyst_boss.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_catalyst_end.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_catalyst_nether.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_catalyst_overworld.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_catalyst_starter.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_weapon_boss.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_weapon_end.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_weapon_nether.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_weapon_overworld.json
+bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f assets/voxelweapons/models/item/voxel_weapon_starter.json

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "addition": {
+    "item": "voxelweapons:voxel_catalyst_boss"
+  },
+  "base": {
+    "item": "voxelweapons:voxel_weapon_end"
+  },
+  "result": {
+    "item": "voxelweapons:voxel_weapon_boss"
+  }
+}

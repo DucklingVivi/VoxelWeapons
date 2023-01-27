@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "tag": "forge:gems/diamond"
+    },
+    "L": {
+      "tag": "forge:leather"
+    },
+    "V": {
+      "item": "voxelweapons:voxel_catalyst_starter"
+    }
+  },
+  "pattern": [
+    "LDL",
+    "DVD",
+    "LDL"
+  ],
+  "result": {
+    "item": "voxelweapons:voxel_catalyst_overworld"
+  }
+}

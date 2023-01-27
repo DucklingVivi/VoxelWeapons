@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "minecraft:wither_skeleton_skull"
+    },
+    "L": {
+      "tag": "forge:rods/blaze"
+    },
+    "V": {
+      "item": "voxelweapons:voxel_catalyst_overworld"
+    }
+  },
+  "pattern": [
+    "LDL",
+    "DVD",
+    "LDL"
+  ],
+  "result": {
+    "item": "voxelweapons:voxel_catalyst_nether"
+  }
+}

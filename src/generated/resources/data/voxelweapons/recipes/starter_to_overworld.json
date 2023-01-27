@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "addition": {
+    "item": "voxelweapons:voxel_catalyst_overworld"
+  },
+  "base": {
+    "item": "voxelweapons:voxel_weapon_starter"
+  },
+  "result": {
+    "item": "voxelweapons:voxel_weapon_overworld"
+  }
+}

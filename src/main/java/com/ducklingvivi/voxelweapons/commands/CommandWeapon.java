@@ -1,6 +1,7 @@
 package com.ducklingvivi.voxelweapons.commands;
 
 import com.ducklingvivi.voxelweapons.dimensions.VoxelChunkGenerator;
+import com.ducklingvivi.voxelweapons.library.VoxelTier;
 import com.ducklingvivi.voxelweapons.library.data.VoxelCreatorSavedData;
 import com.ducklingvivi.voxelweapons.library.VoxelData;
 import com.ducklingvivi.voxelweapons.library.data.VoxelSavedData;
@@ -27,7 +28,6 @@ public class CommandWeapon {
     public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
         return Commands.literal("weapon")
                 .requires(cs -> cs.hasPermission(1))
-                .then(CommandGenerateWeapon.register(dispatcher))
                 .then(CommandCreateWeapon.register(dispatcher));
     }
 
@@ -42,8 +42,7 @@ public class CommandWeapon {
         @Override
         public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 
-            AABB boundingbox = new AABB(new BlockPos(-18,1,-18));
-            boundingbox = boundingbox.minmax(new AABB(new BlockPos(18,36,18)));
+            AABB boundingbox = VoxelTier.STARTER.boundingBox;
             BlockPos pos = new BlockPos(boundingbox.maxX+4.5f,1,boundingbox.getCenter().z);
             VoxelChunkGenerator.Settings settings = new VoxelChunkGenerator.Settings(new VoxelChunkGenerator.FloorSettings((int)boundingbox.minX,(int)boundingbox.maxX,(int)boundingbox.minZ,(int)boundingbox.maxZ),pos.getX(),pos.getZ());
             UUID uuid = UUID.randomUUID();
@@ -52,9 +51,8 @@ public class CommandWeapon {
             VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(level);
             savedData.setOrigin(new BlockPos(0,0,0));
             savedData.setLevelOrigin(context.getSource().getLevel().dimension());
-            savedData.setBoundingBox(boundingbox);
+            savedData.setTier(VoxelTier.STARTER);
             savedData.setLevelOriginPos(player.blockPosition());
-            savedData.setSpawnPoint(pos);
             level.getDataStorage().save();
 
 
@@ -63,47 +61,6 @@ public class CommandWeapon {
 
             return 0;
         }
-    }
-
-    private static class CommandGenerateWeapon implements Command<CommandSourceStack> {
-
-        private static final CommandGenerateWeapon CMD = new CommandGenerateWeapon();
-
-        public static ArgumentBuilder<CommandSourceStack,?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
-            return Commands.literal("generate")
-                    .requires(cs -> cs.hasPermission(1))
-                    .then(Commands.argument("pos0",BlockPosArgument.blockPos())
-                            .then(Commands.argument("pos1",BlockPosArgument.blockPos())
-                                    .then(Commands.argument("origin",BlockPosArgument.blockPos())
-                                            .executes(CMD))));
-
-        }
-
-
-        @Override
-        public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-            BlockPos start = BlockPosArgument.getLoadedBlockPos(context,"pos0");
-            BlockPos end = BlockPosArgument.getLoadedBlockPos(context,"pos1");
-            BlockPos origin = BlockPosArgument.getLoadedBlockPos(context,"origin");
-
-            UUID uuid = UUID.randomUUID();
-            VoxelData data = new VoxelData();
-
-
-            data.offset = origin;
-
-            data.devAddRange(start,end, context.getSource().getLevel());
-
-            VoxelSavedData.get().addData(uuid,data);
-
-            ItemStack item = Registration.VOXELWEAPONITEM.get().getDefaultInstance();
-            CompoundTag tag =  item.getOrCreateTag();
-            tag.putUUID("voxelUUID", uuid);
-            item.setTag(tag);
-            context.getSource().getPlayer().addItem(item);
-            return 0;
-        }
-
     }
 
 }

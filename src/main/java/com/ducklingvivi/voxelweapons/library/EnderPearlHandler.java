@@ -30,42 +30,40 @@ public class EnderPearlHandler {
             if(level.isClientSide()) return;
             List<Entity> entityList = level.getEntities(event.getEntity(), AABB.ofSize(thrownEnderpearl.position(),3,3,3));
             for(Entity entity : entityList){
-                if(entity instanceof ItemEntity itemEntity && itemEntity.getItem().is(Registration.VOXELWEAPONITEM.get())){
+                if(entity instanceof ItemEntity itemEntity && itemEntity.getItem().getItem() instanceof VoxelWeaponItem weaponItem){
                     CompoundTag tag = itemEntity.getItem().getOrCreateTag();
                     if(tag.contains("voxelUUID")){
                         UUID uuid = tag.getUUID("voxelUUID");
                         voxelweapons.LOGGER.info(uuid.toString());
-                        ServerLevel tolevel = VoxelSavedData.get().CreateDimensionFromData(uuid);
+                        ServerLevel tolevel = VoxelSavedData.get().CreateDimensionFromData(uuid, weaponItem.tier);
                         VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(tolevel);
                         savedData.setLevelOriginPos(itemEntity.blockPosition());
                         savedData.setLevelOrigin(level.dimension());
                         savedData.setItemStack(itemEntity.getItem());
                         tolevel.getDataStorage().save();
-                        BlockPos pos = savedData.getSpawnPoint();
+
+                        AABB boundingbox = weaponItem.tier.boundingBox;
+                        BlockPos pos = new BlockPos(boundingbox.maxX+4.5f,1,boundingbox.getCenter().z);
                         player.teleportTo(tolevel, pos.getX()+0.5f, pos.getY(), pos.getZ()+0.5f, 90f, 0 );
                         itemEntity.discard();
                         event.setCanceled(true);
                         thrownEnderpearl.discard();
                         return;
                     }
-                } else if (entity instanceof ItemEntity itemEntity && itemEntity.getItem().is(Registration.VOXELCATALYSTITEM.get())) {
-
+                } else if (entity instanceof ItemEntity itemEntity && itemEntity.getItem().is(Registration.VOXEL_CATALYST_PREDICATE)) {
+                    VoxelCatalystItem item = (VoxelCatalystItem) itemEntity.getItem().getItem();
                     UUID uuid = UUID.randomUUID();
+                    VoxelTier tier = item.tier;
 
-
-
-
-                    AABB boundingbox = new AABB(new BlockPos(-10,1,-10));
-                    boundingbox = boundingbox.minmax(new AABB(new BlockPos(10,40,10)));
+                    AABB boundingbox = tier.boundingBox;
                     BlockPos pos = new BlockPos(boundingbox.maxX+4.5f,1,boundingbox.getCenter().z);
                     VoxelChunkGenerator.Settings settings = new VoxelChunkGenerator.Settings(new VoxelChunkGenerator.FloorSettings((int)boundingbox.minX,(int)boundingbox.maxX,(int)boundingbox.minZ,(int)boundingbox.maxZ),pos.getX(),pos.getZ());
                     ServerLevel newLevel = VoxelSavedData.get().CreateDimension(uuid,settings);
                     VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(newLevel);
                     savedData.setOrigin(new BlockPos(0,0,0));
                     savedData.setLevelOrigin(player.getLevel().dimension());
-                    savedData.setBoundingBox(boundingbox);
                     savedData.setLevelOriginPos(player.blockPosition());
-                    savedData.setSpawnPoint(pos);
+                    savedData.setTier(tier);
                     newLevel.getDataStorage().save();
 
 

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "addition": {
+    "item": "voxelweapons:voxel_catalyst_end"
+  },
+  "base": {
+    "item": "voxelweapons:voxel_weapon_nether"
+  },
+  "result": {
+    "item": "voxelweapons:voxel_weapon_end"
+  }
+}

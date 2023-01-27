@@ -1,7 +1,17 @@
 {
-  "item.voxelweapons.voxelweapon": "Voxel Weapon",
-  "item.voxelweapons.voxelcatalyst": "Voxel Catalyst",
+  "item.voxelweapons.voxel_weapon": "Voxel Weapon",
+  "item.voxelweapons.voxel_catalyst": "Voxel Catalyst",
 
+  "item.voxelweapons.voxelcatalyst.size":"Size",
   "item.voxelweapons.voxelcatalyst.info":"§7Throw an §3[Ender Pearl]§7 while dropped on ground to construct a new weapon",
-  "item.voxelweapons.voxelcatalyst.flavor":"A gateway to infinite creation"
+  "item.voxelweapons.voxelcatalyst.flavor":"A gateway to infinite creation",
+
+
+
+  "item.voxelweapons.tier":"Tier",
+  "item.voxelweapons.tier.starter":"Starter",
+  "item.voxelweapons.tier.overworld":"Overworld",
+  "item.voxelweapons.tier.nether":"Nether",
+  "item.voxelweapons.tier.end":"End",
+  "item.voxelweapons.tier.boss":"Boss"
 }

@@ -15,6 +15,7 @@ public class DataGenerators {
         DataGenerator generator = event.getGenerator();
         generator.addProvider(event.includeClient(),new VoxelBlockState(generator, event.getExistingFileHelper()));
         generator.addProvider(event.includeClient(),new VoxelItemModels(generator, event.getExistingFileHelper()));
+        generator.addProvider(true, new VoxelRecipeProvider(generator.getPackOutput()));
     }
 
 }

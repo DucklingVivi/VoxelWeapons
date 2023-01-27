@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "voxelweapons:nether_to_end"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "nether_to_end": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "voxelweapons:voxel_weapon_nether"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "nether_to_end",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "voxelweapons:nether_to_end"
+    ]
+  }
+}

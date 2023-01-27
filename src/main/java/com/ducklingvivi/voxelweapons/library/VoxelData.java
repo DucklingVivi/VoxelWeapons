@@ -32,9 +32,8 @@ import java.util.*;
 public class VoxelData {
 
     public AABB bounds;
-    public AABB buildbounds;
     public BlockPos offset;
-    public BlockPos spawningpos;
+
     protected Map<BlockPos, StructureBlockInfo> blocks;
     protected  Map<BlockPos, FluidState> fluids;
 
@@ -50,9 +49,6 @@ public class VoxelData {
         presentTileEntities = new HashMap<>();
         offset = new BlockPos(0,0,0);
         bounds = new AABB(BlockPos.ZERO);
-
-        buildbounds = new AABB(BlockPos.ZERO);
-        spawningpos = BlockPos.ZERO;
     }
 
     public static ItemStack BuildWeapon(ServerLevel level) {
@@ -62,22 +58,20 @@ public class VoxelData {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
         VoxelCreatorSavedData savedData = VoxelCreatorSavedData.get(level);
-        AABB boundingbox = savedData.getBoundingBox();
+        AABB boundingbox = savedData.getTier().boundingBox;
         BlockPos start = new BlockPos(boundingbox.minX,boundingbox.minY,boundingbox.minZ);
         BlockPos end = new BlockPos(boundingbox.maxX,boundingbox.maxY,boundingbox.maxZ);
         BlockPos origin = savedData.getOrigin();
 
         VoxelData data = new VoxelData();
         data.offset = origin;
-        data.buildbounds = savedData.getBoundingBox();
-        data.spawningpos = savedData.getSpawnPoint();
         data.devAddRange(start,end, level);
         VoxelSavedData.get().addData(uuid,data);
         server.overworld().getDataStorage().save();
         Messages.sendToAllPlayers(new WeaponPacket(uuid, new VoxelData(), WeaponPacket.WeaponOperation.DELETE));
 
         ItemStack item = savedData.getItemStack();
-        if(item == null || item.isEmpty()) item = Registration.VOXELWEAPONITEM.get().getDefaultInstance();
+        if(item == null || item.isEmpty()) item = VoxelWeaponItem.tierMap.get(savedData.getTier()).getDefaultInstance();
 
         CompoundTag tag =  item.getOrCreateTag();
         tag.putUUID("voxelUUID", uuid);
@@ -97,8 +91,6 @@ public class VoxelData {
 
         offset = NbtUtils.readBlockPos(nbt.getCompound("Offset"));
         bounds = voxelUtils.readAABB(nbt.getList("Bounds", Tag.TAG_FLOAT));
-        spawningpos = NbtUtils.readBlockPos(nbt.getCompound("SpawningPos"));
-        buildbounds = voxelUtils.readAABB(nbt.getList("BuildBounds", Tag.TAG_FLOAT));
     }
 
 
@@ -108,8 +100,6 @@ public class VoxelData {
         nbt.put("Offset", NbtUtils.writeBlockPos(offset));
         nbt.put("Blocks", writeBlocksCompound());
         nbt.put("Bounds", voxelUtils.writeAABB(bounds));
-        nbt.put("SpawningPos", NbtUtils.writeBlockPos(spawningpos));
-        nbt.put("BuildBounds", voxelUtils.writeAABB(buildbounds));
 
         return nbt;
     }

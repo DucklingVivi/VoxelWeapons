@@ -1,5 +1,6 @@
 package com.ducklingvivi.voxelweapons.networking;
 import com.ducklingvivi.voxelweapons.client.data.VoxelCreatorClientData;
+import com.ducklingvivi.voxelweapons.library.VoxelTier;
 import com.ducklingvivi.voxelweapons.library.voxelUtils;
 
 
@@ -80,7 +81,7 @@ public class DimensionCreatorPacket {
         VoxelCreatorClientData.INSTANCE.setOrigin(originPos);
     }
     private void SyncBound(){
-        AABB boundingBox = voxelUtils.readAABB(data.getList("BoundingBox", Tag.TAG_FLOAT));
-        VoxelCreatorClientData.INSTANCE.setBoundingBox(boundingBox);
+        VoxelTier tier = VoxelTier.valueOf(data.getString("Tier"));
+        VoxelCreatorClientData.INSTANCE.setTier(tier);
     }
 }

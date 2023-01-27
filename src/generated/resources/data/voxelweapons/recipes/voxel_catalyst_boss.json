@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "tag": "forge:nether_stars"
+    },
+    "L": {
+      "item": "minecraft:end_crystal"
+    },
+    "V": {
+      "item": "voxelweapons:voxel_catalyst_end"
+    }
+  },
+  "pattern": [
+    "LDL",
+    "DVD",
+    "LDL"
+  ],
+  "result": {
+    "item": "voxelweapons:voxel_catalyst_boss"
+  }
+}

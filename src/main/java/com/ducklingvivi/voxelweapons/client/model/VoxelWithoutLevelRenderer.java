@@ -4,10 +4,8 @@ import com.ducklingvivi.voxelweapons.client.data.VoxelDataClient;
 import com.ducklingvivi.voxelweapons.client.data.VoxelRenderData;
 import com.ducklingvivi.voxelweapons.client.render.RenderTypes;
 import com.ducklingvivi.voxelweapons.library.VoxelData;
-import com.ducklingvivi.voxelweapons.library.VoxelItem;
 import com.ducklingvivi.voxelweapons.setup.Registration;
 import com.ducklingvivi.voxelweapons.voxelweapons;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -20,20 +18,13 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.model.data.ModelData;
 import org.joml.*;
 
@@ -43,7 +34,6 @@ import java.nio.ByteBuffer;
 
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class VoxelWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer {
 
@@ -127,7 +117,7 @@ public class VoxelWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer {
     @Override
     public void renderByItem(ItemStack itemStack, ItemTransforms.TransformType pTransformType, PoseStack poseStack, MultiBufferSource pBuffer, int pPackedLight, int pPackedOverlay) {
 
-        if (itemStack.is(Registration.VOXELWEAPONITEM.get())) {
+        if (itemStack.is(Registration.VOXEL_WEAPON_PREDICATE)) {
             VoxelData data;
             VoxelRenderData renderData;
             CompoundTag nbt = itemStack.getOrCreateTag();
@@ -177,7 +167,7 @@ public class VoxelWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer {
                 }
             });
             poseStack.popPose();
-        }else if(itemStack.is(Registration.VOXELCATALYSTITEM.get())){
+        }else if(itemStack.is(Registration.VOXEL_CATALYST_PREDICATE)){
 
             poseStack.pushPose();
 
@@ -246,12 +236,6 @@ public class VoxelWithoutLevelRenderer extends BlockEntityWithoutLevelRenderer {
                 buffer.vertex(matrix, vertex1.x, vertex1.y, vertex1.z).color(color).uv(sprite.getU0(), sprite.getV1()).uv2(pPackedLight).normal(1, 1, 1).endVertex();
                 buffer.vertex(matrix, vertex2.x, vertex2.y, vertex2.z).color(color).uv(sprite.getU1(), sprite.getV1()).uv2(pPackedLight).normal(1, 1, 1).endVertex();
                 buffer.vertex(matrix, vertex3.x, vertex3.y, vertex3.z).color(color).uv(sprite.getU1(), sprite.getV0()).uv2(pPackedLight).normal(1, 1, 1).endVertex();
-
-//                buffer.vertex(matrix, vertex3.x, vertex3.y, vertex3.z).color(color).uv(sprite.getU1(), sprite.getV1()).uv2(pPackedLight).normal(-1, -1, -1).endVertex();
-//                buffer.vertex(matrix, vertex2.x, vertex2.y, vertex2.z).color(color).uv(sprite.getU0(), sprite.getV1()).uv2(pPackedLight).normal(-1, -1, -1).endVertex();
-//                buffer.vertex(matrix, vertex1.x, vertex1.y, vertex1.z).color(color).uv(sprite.getU0(), sprite.getV0()).uv2(pPackedLight).normal(-1, -1, -1).endVertex();
-//                buffer.vertex(matrix, vertex0.x, vertex0.y, vertex0.z).color(color).uv(sprite.getU1(), sprite.getV0()).uv2(pPackedLight).normal(-1, -1, -1).endVertex();
-
             }
 
 
