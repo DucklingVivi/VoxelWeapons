@@ -11,7 +11,6 @@ public class ModCommands {
         LiteralCommandNode<CommandSourceStack> commands = dispatcher.register(
                 Commands.literal(voxelweapons.MODID)
                         .then(CommandDimension.register(dispatcher))
-                        .then(CommandWeapon.register(dispatcher))
         );
         dispatcher.register(Commands.literal("voxel").redirect(commands));
     }

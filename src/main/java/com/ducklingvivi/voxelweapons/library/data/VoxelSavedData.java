@@ -5,10 +5,15 @@ import com.ducklingvivi.voxelweapons.dimensions.DimensionUtils;
 import com.ducklingvivi.voxelweapons.dimensions.VoxelChunkGenerator;
 import com.ducklingvivi.voxelweapons.library.VoxelData;
 import com.ducklingvivi.voxelweapons.library.VoxelTier;
+import com.ducklingvivi.voxelweapons.voxelweapons;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -107,7 +112,9 @@ public class VoxelSavedData extends SavedData {
     public void DeleteDimension(UUID uuid){
         if(DimensionMap.containsKey(uuid)){
             Integer dimensionid = DimensionMap.remove(uuid);
-            DimensionUtils.deleteWorld(ServerLifecycleHooks.getCurrentServer(),dimensionid.toString());
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            server.getLevel(DimensionUtils.getLevelKey(new ResourceLocation(voxelweapons.MODID, dimensionid.toString()))).getDataStorage().save();
+            DimensionUtils.deleteWorld(server,dimensionid.toString());
             setDirty(true);
         }
     }
